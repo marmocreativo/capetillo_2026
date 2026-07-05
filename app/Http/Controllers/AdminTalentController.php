@@ -1,0 +1,169 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreTalentRequest;
+use App\Models\Category;
+use App\Models\Talent;
+use App\Services\ImageUploadService;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+class AdminTalentController extends Controller
+{
+    public function __construct(protected ImageUploadService $imageUploadService)
+    {
+    }
+
+    
+
+    public function index(\Illuminate\Http\Request $request)
+    {
+        $query = Talent::with('categories');
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('slug', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->whereHas('categories', function ($q) use ($request) {
+                $q->where('categories.slug', $request->input('category'));
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->input('status') === 'active');
+        }
+
+        $talents = $query->orderBy('name')
+            ->paginate(15)
+            ->withQueryString();
+
+        $categories = Category::orderBy('name')->get();
+
+        return view('admin.talents.index', compact('talents', 'categories'));
+    }
+
+    public function create()
+    {
+        $categories = Category::orderBy('name')->get();
+
+        return view('admin.talents.create', compact('categories'));
+    }
+
+    public function store(StoreTalentRequest $request)
+    {
+        $data = $request->validated();
+        $data['slug'] = $data['slug'] ?? Str::slug($data['name']);
+        $data['is_active'] = $request->boolean('is_active');
+        $data['highlights'] = array_values(array_filter($request->input('highlights', [])));
+
+        if ($request->hasFile('cover_image')) {
+            $data['cover_image'] = $this->imageUploadService->store($request->file('cover_image'), 'talents');
+        }
+
+        $talent = Talent::create(collect($data)->except(['new_images', 'delete_images', 'videos'])->toArray());
+        $talent->categories()->sync($data['categories']);
+
+        $this->syncGallery($request, $talent);
+        $this->syncVideos($request, $talent);
+
+        return redirect()->route('admin.talents.index')->with('status', 'Talento creado correctamente.');
+    }
+
+    public function update(StoreTalentRequest $request, Talent $talent)
+    {
+        $data = $request->validated();
+        $data['slug'] = $data['slug'] ?? Str::slug($data['name']);
+        $data['is_active'] = $request->boolean('is_active');
+        $data['highlights'] = array_values(array_filter($request->input('highlights', [])));
+
+        if ($request->hasFile('cover_image')) {
+            if ($talent->cover_image) {
+                Storage::disk('public')->delete($talent->cover_image);
+            }
+            $data['cover_image'] = $this->imageUploadService->store($request->file('cover_image'), 'talents');
+        }
+
+        $talent->update(collect($data)->except(['new_images', 'delete_images', 'videos'])->toArray());
+        $talent->categories()->sync($data['categories']);
+
+        $this->syncGallery($request, $talent);
+        $this->syncVideos($request, $talent);
+
+        return redirect()->route('admin.talents.index')->with('status', 'Talento actualizado correctamente.');
+    }
+
+    protected function syncGallery(\Illuminate\Http\Request $request, Talent $talent): void
+    {
+        $deleteIds = $request->input('delete_images', []);
+
+        if (! empty($deleteIds)) {
+            $images = $talent->images()->whereIn('id', $deleteIds)->get();
+            foreach ($images as $image) {
+                Storage::disk('public')->delete($image->path);
+                $image->delete();
+            }
+        }
+
+        if ($request->hasFile('new_images')) {
+            $order = $talent->images()->max('order') ?? 0;
+            foreach ($request->file('new_images') as $file) {
+                $order++;
+                $path = $this->imageUploadService->store($file, 'talents/gallery');
+                $talent->images()->create(['path' => $path, 'order' => $order]);
+            }
+        }
+    }
+
+    protected function syncVideos(\Illuminate\Http\Request $request, Talent $talent): void
+    {
+        $entries = array_values(array_filter($request->input('videos', [])));
+
+        $talent->videos()->delete();
+
+        foreach ($entries as $index => $entry) {
+            $youtubeId = $this->extractYoutubeId($entry);
+            if ($youtubeId) {
+                $talent->videos()->create(['youtube_id' => $youtubeId, 'order' => $index]);
+            }
+        }
+    }
+
+    protected function extractYoutubeId(string $value): ?string
+    {
+        if (preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $value, $matches)) {
+            return $matches[1];
+        }
+
+        if (preg_match('/^[a-zA-Z0-9_-]{11}$/', trim($value))) {
+            return trim($value);
+        }
+
+        return null;
+    }
+
+    public function edit(Talent $talent)
+    {
+        $categories = Category::orderBy('name')->get();
+        $talent->load('categories');
+
+        return view('admin.talents.edit', compact('talent', 'categories'));
+    }
+
+
+    public function destroy(Talent $talent)
+    {
+        if ($talent->cover_image) {
+            Storage::disk('public')->delete($talent->cover_image);
+        }
+
+        $talent->delete();
+
+        return redirect()->route('admin.talents.index')->with('status', 'Talento eliminado correctamente.');
+    }
+}

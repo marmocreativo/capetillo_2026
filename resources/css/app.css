@@ -1,0 +1,54 @@
+@import 'tailwindcss';
+@import 'tailwindcss';
+
+@plugin "daisyui" {
+    themes: capetillo --default;
+}
+
+@plugin "daisyui/theme" {
+    name: "capetillo";
+    default: true;
+    color-scheme: dark;
+
+    --color-base-100: #1a1a1a;
+    --color-base-200: #242424;
+    --color-base-300: #2e2e2e;
+    --color-base-content: #f2f2f2;
+
+    --color-primary: #DCA54A;
+    --color-primary-content: #1a1a1a;
+
+    --color-secondary: #a9812f;
+    --color-secondary-content: #f2f2f2;
+
+    --color-accent: #e8c170;
+    --color-accent-content: #1a1a1a;
+
+    --color-neutral: #3d3d3d;
+    --color-neutral-content: #f2f2f2;
+
+    --color-info: #3abff8;
+    --color-info-content: #002b3d;
+
+    --color-success: #36d399;
+    --color-success-content: #003320;
+
+    --color-warning: #fbbd23;
+    --color-warning-content: #382800;
+
+    --color-error: #f87272;
+    --color-error-content: #470000;
+
+    --radius-selector: 0.5rem;
+    --radius-field: 0.5rem;
+    --radius-box: 1rem;
+
+    --border: 1px;
+}
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
