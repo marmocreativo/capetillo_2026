@@ -25,10 +25,15 @@ class Talent extends Model
         'spotify_url',
         'highlights',
         'is_active',
+        'orden',
+        'destacado',
+        'honorarios_default',
     ];
 
     protected $casts = [
         'highlights' => 'array',
+        'destacado' => 'boolean',
+        'honorarios_default' => 'decimal:2',
     ];
 
     protected static function booted(): void
@@ -53,6 +58,11 @@ class Talent extends Model
     public function videos(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(TalentVideo::class)->orderBy('order');
+    }
+
+    public function rosterEntries(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(RosterTalent::class);
     }
 
     public function getRouteKeyName(): string

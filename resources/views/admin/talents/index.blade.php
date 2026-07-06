@@ -82,29 +82,41 @@
         <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactivos</option>
     </select>
 
+    <select name="per_page" class="select select-bordered" onchange="this.form.submit()">
+        <option value="15" {{ (int) request('per_page', 15) === 15 ? 'selected' : '' }}>15 por página</option>
+        <option value="50" {{ (int) request('per_page') === 50 ? 'selected' : '' }}>50 por página</option>
+        <option value="100" {{ (int) request('per_page') === 100 ? 'selected' : '' }}>100 por página</option>
+        <option value="250" {{ (int) request('per_page') === 250 ? 'selected' : '' }}>250 por página (todos)</option>
+    </select>
+
     <button type="submit" class="btn btn-primary">Buscar</button>
 
-    @if (request('search') || request('category') || request('status'))
+    @if (request('search') || request('category') || request('status') || request('per_page'))
         <a href="{{ route('admin.talents.index') }}" class="btn btn-ghost">Limpiar</a>
     @endif
 </form>
+
+<p class="text-xs opacity-60 mb-2">El orden por arrastre solo reordena los talentos visibles en esta página. Si tienes muchos talentos, sube el número de "por página" arriba (hasta 250) para reordenarlos todos a la vez.</p>
 
 <div class="overflow-x-auto bg-base-100 rounded-box shadow">
     <table class="table">
         <thead>
             <tr>
+                <th class="w-8"></th>
                 <th><input type="checkbox" id="select-all" class="checkbox checkbox-sm"></th>
                 <th>Imagen</th>
                 <th>Nombre</th>
                 <th>Slug</th>
                 <th>Categorías</th>
                 <th>Activo</th>
+                <th>Destacado</th>
                 <th class="text-right">Acciones</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="sortable-body">
             @forelse ($talents as $talent)
-                <tr>
+                <tr data-slug="{{ $talent->slug }}" class="cursor-move">
+                    <td class="drag-handle text-center opacity-50">⠿</td>
                     <td><input type="checkbox" class="checkbox checkbox-sm talent-checkbox" value="{{ $talent->slug }}"></td>
                     <td>
                         @if ($talent->cover_image)
@@ -121,11 +133,14 @@
                         @endforeach
                     </td>
                     <td>
-                        @if ($talent->is_active)
-                            <span class="badge badge-success badge-sm">Sí</span>
-                        @else
-                            <span class="badge badge-ghost badge-sm">No</span>
-                        @endif
+                        <input type="checkbox" class="toggle toggle-success toggle-sm toggle-active"
+                            data-url="{{ route('admin.talents.toggle-active', $talent) }}"
+                            {{ $talent->is_active ? 'checked' : '' }}>
+                    </td>
+                    <td>
+                        <input type="checkbox" class="toggle toggle-warning toggle-sm toggle-destacado"
+                            data-url="{{ route('admin.talents.toggle-destacado', $talent) }}"
+                            {{ $talent->destacado ? 'checked' : '' }}>
                     </td>
                     <td class="text-right">
                         <a href="{{ route('admin.talents.edit', $talent) }}" class="btn btn-xs">Editar</a>
@@ -138,7 +153,7 @@
                 </tr>
            @empty
                 <tr>
-                    <td colspan="7" class="text-center py-6 opacity-60">Aún no hay talentos.</td>
+                    <td colspan="9" class="text-center py-6 opacity-60">Aún no hay talentos.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -310,5 +325,61 @@ document.getElementById('extra-all-btn').addEventListener('click', async () => {
     if (!confirm(`Se va a buscar contenido extra para ${ids.length} talento(s) SIN resumen. ¿Continuar?`)) return;
     runExtraBatch(ids);
 });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script>
+document.querySelectorAll('.toggle-active').forEach(el => {
+    el.addEventListener('change', async () => {
+        try {
+            const res = await fetch(el.dataset.url, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            });
+            if (!res.ok) throw new Error();
+        } catch (e) {
+            alert('No se pudo actualizar el estado.');
+            el.checked = !el.checked;
+        }
+    });
+});
+
+document.querySelectorAll('.toggle-destacado').forEach(el => {
+    el.addEventListener('change', async () => {
+        try {
+            const res = await fetch(el.dataset.url, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            });
+            if (!res.ok) throw new Error();
+        } catch (e) {
+            alert('No se pudo actualizar el estado destacado.');
+            el.checked = !el.checked;
+        }
+    });
+});
+
+const sortableBody = document.getElementById('sortable-body');
+if (sortableBody) {
+    new Sortable(sortableBody, {
+        handle: '.drag-handle',
+        animation: 150,
+        onEnd: async () => {
+            const order = Array.from(sortableBody.querySelectorAll('tr[data-slug]')).map(tr => tr.dataset.slug);
+            try {
+                await fetch('{{ route("admin.talents.reorder") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ order }),
+                });
+            } catch (e) {
+                alert('No se pudo guardar el nuevo orden.');
+            }
+        },
+    });
+}
 </script>
 @endsection

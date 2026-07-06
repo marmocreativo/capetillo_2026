@@ -12,7 +12,9 @@ class TalentoController extends Controller
     {
         $featuredTalents = Talent::with('categories')
             ->where('is_active', true)
-            ->inRandomOrder()
+            ->orderByDesc('destacado')
+            ->orderBy('orden')
+            ->orderBy('name')
             ->limit(12)
             ->get();
 
@@ -40,10 +42,15 @@ class TalentoController extends Controller
 
         $talents = $category->talents()
             ->where('is_active', true)
+            ->orderByDesc('destacado')
+            ->orderBy('orden')
             ->orderBy('name')
             ->get();
 
-        return view('public.categories.show', compact('category', 'talents'));
+        $featuredTalents = $talents->where('destacado', true)->values();
+        $regularTalents = $talents->where('destacado', false)->values();
+
+        return view('public.categories.show', compact('category', 'talents', 'featuredTalents', 'regularTalents'));
     }
 
     public function showTalent(Category $category, Talent $talent)

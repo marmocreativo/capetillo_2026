@@ -53,27 +53,57 @@
          style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ asset('images/fondo_concierto.png') }}');"></div>
     
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        @forelse ($talents as $talent)
-            <a href="{{ route('talents.show', [$category, $talent]) }}"
-            class="relative aspect-[4/5] overflow-hidden shadow hover:shadow-lg transition-shadow group">
-                @if ($talent->cover_image)
-                    <img src="{{ Storage::url($talent->cover_image) }}" alt="{{ $talent->name }}"
-                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                @else
-                    <div class="w-full h-full bg-base-300 flex items-center justify-center text-4xl opacity-30">🎤</div>
-                @endif
+    @if ($featuredTalents->isNotEmpty())
+        <h2 class="text-xl font-bold text-primary mb-3">Destacados</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            @foreach ($featuredTalents as $talent)
+                <a href="{{ route('talents.show', [$category, $talent]) }}"
+                class="relative aspect-[4/5] overflow-hidden shadow hover:shadow-lg transition-shadow group ring-2 ring-primary/60">
+                    @if ($talent->cover_image)
+                        <img src="{{ Storage::url($talent->cover_image) }}" alt="{{ $talent->name }}"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    @else
+                        <div class="w-full h-full bg-base-300 flex items-center justify-center text-4xl opacity-30">🎤</div>
+                    @endif
 
-                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"></div>
 
-                <div class="absolute inset-0 flex items-end justify-center pb-4 text-center px-2">
-                    <h2 class="text-primary font-bold text-sm leading-tight">{{ $talent->name }}</h2>
-                </div>
-            </a>
-        @empty
-            <p class="opacity-60 col-span-full">Aún no hay talento registrado en esta categoría.</p>
-        @endforelse
-    </div>
+                    <div class="absolute inset-0 flex items-end justify-center pb-4 text-center px-2">
+                        <h2 class="text-primary font-bold text-sm leading-tight">{{ $talent->name }}</h2>
+                    </div>
+                </a>
+            @endforeach
+        </div>
+    @endif
+
+    @if ($regularTalents->isNotEmpty())
+        @if ($featuredTalents->isNotEmpty())
+            <h2 class="text-xl font-bold mb-3">Todo el talento</h2>
+        @endif
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            @foreach ($regularTalents as $talent)
+                <a href="{{ route('talents.show', [$category, $talent]) }}"
+                class="relative aspect-[4/5] overflow-hidden shadow hover:shadow-lg transition-shadow group">
+                    @if ($talent->cover_image)
+                        <img src="{{ Storage::url($talent->cover_image) }}" alt="{{ $talent->name }}"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    @else
+                        <div class="w-full h-full bg-base-300 flex items-center justify-center text-4xl opacity-30">🎤</div>
+                    @endif
+
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"></div>
+
+                    <div class="absolute inset-0 flex items-end justify-center pb-4 text-center px-2">
+                        <h2 class="text-primary font-bold text-sm leading-tight">{{ $talent->name }}</h2>
+                    </div>
+                </a>
+            @endforeach
+        </div>
+    @endif
+
+    @if ($featuredTalents->isEmpty() && $regularTalents->isEmpty())
+        <p class="opacity-60">Aún no hay talento registrado en esta categoría.</p>
+    @endif
 </div>
 
 <div class="hero bg-base-200/50 backdrop-lg p-10 my-6">

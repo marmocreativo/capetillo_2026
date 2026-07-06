@@ -100,6 +100,21 @@
                             <span class="label-text">Talento activo</span>
                         </label>
 
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="checkbox" name="destacado" value="1" class="checkbox" {{ old('destacado', $talent->destacado ?? false) ? 'checked' : '' }}>
+                            <span class="label-text">Talento destacado</span>
+                        </label>
+
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Orden</span></label>
+                            <input type="number" name="orden" value="{{ old('orden', $talent->orden ?? '') }}" class="input input-bordered w-full" min="0" placeholder="Se asigna automáticamente si se deja vacío">
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Honorarios (default)</span></label>
+                            <input type="number" name="honorarios_default" value="{{ old('honorarios_default', $talent->honorarios_default ?? '') }}" class="input input-bordered w-full" min="0" step="0.01">
+                        </div>
+
                         <div class="divider my-0"></div>
 
                         <div class="form-control">

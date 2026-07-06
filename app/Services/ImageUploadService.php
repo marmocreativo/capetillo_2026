@@ -58,4 +58,18 @@ class ImageUploadService
 
         return $path;
     }
+
+    public function storeLogo(\Illuminate\Http\UploadedFile $file, string $directory): string
+    {
+        $image = \Intervention\Image\Laravel\Facades\Image::decode($file);
+
+        $filename = \Illuminate\Support\Str::uuid() . '.png';
+        $path = trim($directory, '/') . '/' . $filename;
+
+        $encoded = $image->encodeUsingFormat(\Intervention\Image\Format::PNG);
+
+        \Illuminate\Support\Facades\Storage::disk('public')->put($path, (string) $encoded);
+
+        return $path;
+    }
 }

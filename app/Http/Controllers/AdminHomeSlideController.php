@@ -61,6 +61,17 @@ class AdminHomeSlideController extends Controller
         return redirect()->route('admin.home-slides.index')->with('status', 'Slide actualizado correctamente.');
     }
 
+    public function reorder(\Illuminate\Http\Request $request)
+    {
+        $ids = $request->input('order', []);
+
+        foreach ($ids as $index => $id) {
+            HomeSlide::where('id', $id)->update(['order' => $index]);
+        }
+
+        return response()->json(['status' => 'ok']);
+    }
+
     public function destroy(HomeSlide $homeSlide)
     {
         if ($homeSlide->image) {

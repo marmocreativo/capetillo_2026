@@ -16,6 +16,8 @@ Route::view('/live-media', 'public.live-media')->name('live-media');
 Route::view('/contacto', 'public.contact')->name('contact.page');
 Route::post('/contacto', [\App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
 Route::view('/aviso-de-privacidad', 'public.privacy')->name('privacy');
+Route::get('/roster/{roster:public_token}', [\App\Http\Controllers\PublicRosterController::class, 'show'])->name('roster.public');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -26,9 +28,23 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [\App\Http\Controllers\AdminDashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('home-slides', \App\Http\Controllers\AdminHomeSlideController::class)->except(['show']);
+    Route::post('home-slides/reorder', [\App\Http\Controllers\AdminHomeSlideController::class, 'reorder'])
+    ->name('home-slides.reorder');
 
     Route::resource('categories', \App\Http\Controllers\AdminCategoryController::class);
     Route::resource('talents', \App\Http\Controllers\AdminTalentController::class);
+    Route::resource('rosters', \App\Http\Controllers\AdminRosterController::class);
+    Route::get('rosters/{roster}/export', [\App\Http\Controllers\AdminRosterExportController::class, 'export'])
+    ->name('rosters.export');
+
+    Route::post('talents/reorder', [\App\Http\Controllers\AdminTalentController::class, 'reorder'])
+    ->name('talents.reorder');
+
+    Route::post('talents/{talent}/toggle-active', [\App\Http\Controllers\AdminTalentController::class, 'toggleActive'])
+    ->name('talents.toggle-active');
+
+    Route::post('talents/{talent}/toggle-destacado', [\App\Http\Controllers\AdminTalentController::class, 'toggleDestacado'])
+    ->name('talents.toggle-destacado');
 
     Route::post('talents/{talent}/generate-content', [\App\Http\Controllers\AdminTalentContentController::class, 'generate'])
     ->name('talents.generate-content');

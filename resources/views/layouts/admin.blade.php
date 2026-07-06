@@ -48,6 +48,16 @@
                         <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Dashboard</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.home-slides.index') }}" class="{{ request()->routeIs('admin.home-slides.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Slides del Home' : null">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <path d="m21 15-5-5L5 21"></path>
+                        </svg>
+                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Slides del Home</span>
+                    </a>
+                </li>
 
                 <li>
                     <a href="{{ route('admin.categories.index') }}" class="{{ request()->routeIs('admin.categories.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Categorías' : null">
@@ -68,17 +78,18 @@
                         <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Talentos</span>
                     </a>
                 </li>
-
                 <li>
-                    <a href="{{ route('admin.home-slides.index') }}" class="{{ request()->routeIs('admin.home-slides.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Slides del Home' : null">
+                    <a href="{{ route('admin.rosters.index') }}" class="{{ request()->routeIs('admin.home-slides.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Slides del Home' : null">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="3" width="18" height="18" rx="2"></rect>
                             <circle cx="8.5" cy="8.5" r="1.5"></circle>
                             <path d="m21 15-5-5L5 21"></path>
                         </svg>
-                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Slides del Home</span>
+                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Rosters</span>
                     </a>
                 </li>
+
+                
             </ul>
 
             {{-- Footer: volver al sitio + colapsar + usuario --}}

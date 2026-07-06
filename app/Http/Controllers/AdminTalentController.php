@@ -39,8 +39,12 @@ class AdminTalentController extends Controller
             $query->where('is_active', $request->input('status') === 'active');
         }
 
-        $talents = $query->orderBy('name')
-            ->paginate(15)
+        $perPage = (int) $request->input('per_page', 15);
+        $perPage = in_array($perPage, [15, 50, 100, 250], true) ? $perPage : 15;
+
+        $talents = $query->orderBy('orden')
+            ->orderBy('name')
+            ->paginate($perPage)
             ->withQueryString();
 
         $categories = Category::orderBy('name')->get();
@@ -60,6 +64,8 @@ class AdminTalentController extends Controller
         $data = $request->validated();
         $data['slug'] = $data['slug'] ?? Str::slug($data['name']);
         $data['is_active'] = $request->boolean('is_active');
+        $data['destacado'] = $request->boolean('destacado');
+        $data['orden'] = $data['orden'] ?? ((int) Talent::max('orden') + 1);
         $data['highlights'] = array_values(array_filter($request->input('highlights', [])));
 
         if ($request->hasFile('cover_image')) {
@@ -80,6 +86,8 @@ class AdminTalentController extends Controller
         $data = $request->validated();
         $data['slug'] = $data['slug'] ?? Str::slug($data['name']);
         $data['is_active'] = $request->boolean('is_active');
+        $data['destacado'] = $request->boolean('destacado');
+        $data['orden'] = $data['orden'] ?? $talent->orden;
         $data['highlights'] = array_values(array_filter($request->input('highlights', [])));
 
         if ($request->hasFile('cover_image')) {
@@ -165,5 +173,30 @@ class AdminTalentController extends Controller
         $talent->delete();
 
         return redirect()->route('admin.talents.index')->with('status', 'Talento eliminado correctamente.');
+    }
+
+    public function toggleActive(Talent $talent)
+    {
+        $talent->update(['is_active' => ! $talent->is_active]);
+
+        return response()->json(['is_active' => $talent->is_active]);
+    }
+
+    public function toggleDestacado(Talent $talent)
+    {
+        $talent->update(['destacado' => ! $talent->destacado]);
+
+        return response()->json(['destacado' => $talent->destacado]);
+    }
+
+    public function reorder(\Illuminate\Http\Request $request)
+    {
+        $slugs = $request->input('order', []);
+
+        foreach ($slugs as $index => $slug) {
+            Talent::where('slug', $slug)->update(['orden' => $index]);
+        }
+
+        return response()->json(['status' => 'ok']);
     }
 }
