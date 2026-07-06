@@ -54,6 +54,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('talents/batch/all-ids', [\App\Http\Controllers\AdminTalentContentController::class, 'allIds'])
     ->name('talents.all-ids');
+
+    Route::resource('contact-messages', \App\Http\Controllers\AdminContactMessageController::class)
+        ->only(['index', 'edit', 'update', 'destroy']);
 });
 
 /*

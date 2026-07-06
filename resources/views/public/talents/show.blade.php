@@ -211,6 +211,8 @@
 
                 <form id="contact-form" class="flex flex-col gap-3">
                     @csrf
+                    <input type="hidden" name="type" value="contratacion">
+                    <input type="hidden" name="talent_id" value="{{ $talent->id }}">
                     <input type="hidden" name="talent_name" value="{{ $talent->name }}">
 
                     <div class="form-control">
@@ -229,13 +231,33 @@
                     </div>
 
                     <div class="form-control">
+                        <label class="label"><span class="label-text">Estado de la república</span></label>
+                        <select name="estado_republica" class="select select-bordered w-full" required>
+                            <option value="" disabled selected>Selecciona tu estado</option>
+                            @foreach (config('estados_mexico') as $estado)
+                                <option value="{{ $estado }}">{{ $estado }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Aforo esperado</span></label>
+                            <input type="number" min="1" name="aforo_esperado" class="input input-bordered w-full" placeholder="Opcional">
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Venue / Lugar</span></label>
+                            <input type="text" name="venue" class="input input-bordered w-full" placeholder="Opcional">
+                        </div>
+                    </div>
+
+                    <div class="form-control">
                         <label class="label"><span class="label-text">Mensaje</span></label>
-                        <textarea name="message" class="textarea textarea-bordered w-full" rows="3">Deseas contratar a {{ $talent->name }}, por favor llena los siguientes datos y nos comunicaremos contigo.</textarea>
+                        <textarea name="message" class="textarea textarea-bordered w-full" rows="3">Me interesa contratar a {{ $talent->name }}.</textarea>
                     </div>
 
                     <div class="modal-action flex-col sm:flex-row gap-2">
                         <button type="submit" class="btn btn-primary flex-1">Enviar por correo</button>
-                        <button type="button" id="whatsapp-send-btn" class="btn btn-outline btn-primary flex-1">Enviar por WhatsApp</button>
                     </div>
                 </form>
             </div>
@@ -306,15 +328,8 @@
             alertBox.classList.add('alert-error');
         } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Enviar por correo';
+            submitBtn.textContent = 'Enviar mensaje';
         }
-    });
-
-    document.getElementById('whatsapp-send-btn').addEventListener('click', () => {
-        const name = contactForm.querySelector('[name="name"]').value || 'Cliente';
-        const message = contactForm.querySelector('[name="message"]').value;
-        const text = encodeURIComponent(`Hola, soy ${name}. ${message}`);
-        window.open(`https://wa.me/5215523995604?text=${text}`, '_blank');
     });
 })();
 </script>

@@ -8,19 +8,43 @@ use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
-    public function send(Request $request)
+    public function send(\App\Http\Requests\StoreContactMessageRequest $request)
     {
-        $data = $request->validate([
-            'talent_name' => ['nullable', 'string', 'max:255'],
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:30'],
-            'message' => ['required', 'string', 'max:2000'],
-        ]);
+        \Illuminate\Support\Facades\Log::info('Contacto: request recibido', $request->all());
 
-        $data['talent_name'] = $data['talent_name'] ?: 'Consulta general (formulario de contacto)';
+        $data = $request->validated();
 
-        Mail::to(config('services.contact.email'))->send(new ContactRequestMail($data));
+        \Illuminate\Support\Facades\Log::info('Contacto: datos validados', $data);
+
+        if ($data['type'] === 'general' && empty($data['talent_name'])) {
+            $data['talent_name'] = 'Consulta general (formulario de contacto)';
+        }
+
+        try {
+            $contactMessage = \App\Models\ContactMessage::create($data);
+            \Illuminate\Support\Facades\Log::info('Contacto: mensaje guardado en BD', ['id' => $contactMessage->id]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Contacto: error al guardar en BD', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json(['message' => 'No se pudo guardar tu mensaje. Intenta de nuevo.'], 500);
+        }
+
+        $destino = config('services.contact.email');
+        \Illuminate\Support\Facades\Log::info('Contacto: intentando enviar correo', ['destino' => $destino]);
+
+        try {
+            Mail::to($destino)->send(new ContactRequestMail($data));
+            \Illuminate\Support\Facades\Log::info('Contacto: correo enviado sin excepciones');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Contacto: error al enviar correo', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            // El mensaje ya quedó guardado en BD aunque falle el correo, así que no regresamos error aquí.
+        }
 
         return response()->json(['message' => 'Mensaje enviado correctamente.']);
     }
