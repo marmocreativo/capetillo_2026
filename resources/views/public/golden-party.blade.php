@@ -67,34 +67,35 @@
             'Decoración y Ambientación' => [
                 'subtitle' => 'Decoración en globos, Candy Bar, Decoración con flor, telaje y escenografías',
                 'images' => [
-                    'image4-200x300.png', 'image18-240x300.png', 'image8-200x300.png',
-                    'image19-270x300.jpeg', 'image14-300x200.png', 'image6-200x300.png',
-                    'image5-235x300.png', 'image17-300x200.jpeg',
+                    'deco_1.png','deco_2.png','deco_3.png','deco_4.png',
+                    'deco_5.png','deco_6.png','deco_7.png','deco_8.png',
                 ],
             ],
             'Banquetes' => [
                 'subtitle' => null,
                 'images' => [
-                    'image19-2-270x300.jpeg', 'image18-2-240x300.png', 'image17-2-300x200.jpeg',
-                    'image16-2-300x200.jpeg', 'image15-2-300x200.jpeg',
+                    'banquete_1.png','banquete_2.png','banquete_3.png','banquete_4.png',
+                    'banquete_5.png','banquete_6.png','banquete_7.jpeg','banquete_8.jpeg',
+                    'banquete_9.jpeg','banquete_10.png','banquete_11.jpeg',
                 ],
             ],
             'Tecnología' => [
                 'subtitle' => 'Pantallas de video de alta calidad, Equipos de audio e iluminación, Efectos especiales, Escenarios, templetes y tarimas.',
                 'images' => [
-                    'image20-300x200.png', 'image24-300x200.png', 'image23-1-300x199.png',
-                    'image22-300x200.png', 'image25-300x200.png', 'image30-300x200.png',
+                    'tecno_1.png','tecno_2.png','tecno_3.png','tecno_4.png',
+                    'tecno_5.png','tecno_6.png','tecno_7.png','tecno_8.png',
+                    'tecno_9.png','tecno_10.png','tecno_11.png','tecno_12.png'
                 ],
             ],
             'Fiestas Temáticas' => [
                 'subtitle' => 'Experiencias inmersivas, Photo opportunity, Shows y animación, Dj y talento artístico, Celebridades.',
                 'images' => [
-                    'image31-300x200.png', 'image39-300x200.jpeg', 'image38-300x200.jpeg',
-                    'image37-300x200.jpeg', 'image36-200x300.jpeg', 'image35-300x200.jpeg',
+                    'tematica_1.png','tematica_2.png','tematica_3.png','tematica_4.jpeg',
+                    'tematica_5.jpeg','tematica_6.jpeg','tematica_7.jpeg','tematica_8.jpeg',
                 ],
             ],
         ];
-        $baseUploadUrl = 'https://capetilloproducciones.mx/wp-content/uploads/2024/11/';
+        $baseUploadUrl = 'http://localhost:8000/images/goldenparty/';
     @endphp
 
     @foreach ($galleries as $title => $gallery)
