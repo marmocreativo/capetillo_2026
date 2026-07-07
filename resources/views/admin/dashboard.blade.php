@@ -112,4 +112,90 @@
     </div>
 
 </div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+
+    {{-- Artistas más populares --}}
+    <div class="card bg-base-100 border border-base-300">
+        <div class="card-body">
+            <h3 class="font-semibold mb-3">Artistas más populares</h3>
+            <p class="text-xs opacity-60 mb-3">Con más solicitudes de contratación recibidas</p>
+
+            <div class="overflow-x-auto">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Talento</th>
+                            <th class="text-right">Solicitudes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($popularTalents as $index => $row)
+                            <tr>
+                                <td class="opacity-60">{{ $index + 1 }}</td>
+                                <td>
+                                    <a href="{{ route('admin.talents.edit', $row->talent) }}" class="link link-hover">
+                                        {{ $row->talent->name }}
+                                    </a>
+                                </td>
+                                <td class="text-right">
+                                    <span class="badge badge-primary badge-sm">{{ $row->total_mensajes }}</span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-center opacity-60 py-4">Aún no hay datos suficientes.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- Ventas de los últimos 3 meses --}}
+    <div class="card bg-base-100 border border-base-300">
+        <div class="card-body">
+            <h3 class="font-semibold mb-3">Ventas de los últimos 3 meses</h3>
+            <p class="text-xs opacity-60 mb-3">Basado en mensajes marcados como "Contrato pagado"</p>
+            <canvas id="salesChart" height="140"></canvas>
+        </div>
+    </div>
+
+</div>
+
+{{-- Mapa de contactos por estado (SVG real, simplemaps.com) --}}
+<div class="card bg-base-100 border border-base-300 mt-4">
+    <div class="card-body">
+        <h3 class="font-semibold mb-1">Contactos de contratación por estado</h3>
+        <p class="text-xs opacity-60 mb-3">El color indica el número de contactos recibidos. Pasa el mouse sobre un estado para ver el detalle y el artista más popular.</p>
+
+        @include('admin.partials.mexico-map')
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+    new Chart(document.getElementById('salesChart'), {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode($salesByMonth->pluck('label')) !!},
+            datasets: [{
+                label: 'Ventas (MXN)',
+                data: {!! json_encode($salesByMonth->pluck('total')) !!},
+                backgroundColor: '#DCA54A',
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { ticks: { color: '#a3a3a3' }, grid: { color: '#333333' } },
+                x: { ticks: { color: '#a3a3a3' }, grid: { display: false } }
+            }
+        }
+    });
+</script>
 @endsection

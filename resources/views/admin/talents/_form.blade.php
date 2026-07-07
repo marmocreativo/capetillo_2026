@@ -86,13 +86,22 @@
                     <div class="card-body gap-4">
 
                         <div class="form-control">
-                            <label class="label"><span class="label-text">Imagen de portada (4:5)</span></label>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="label"><span class="label-text">Imagen de portada (4:5)</span></label>
+                                @if (isset($talent) && $talent->exists && $talent->cover_image)
+                                    <button type="button" id="generate-studio-btn" class="btn btn-xs btn-outline btn-secondary"
+                                        data-url="{{ route('admin.talents.generate-studio-image', $talent) }}">
+                                        🎨 Retrato de estudio con IA
+                                    </button>
+                                @endif
+                            </div>
                             <input type="file" name="cover_image" accept="image/*" class="file-input file-input-bordered w-full" onchange="previewCoverImage(event)">
                             <div class="mt-2">
                                 <img id="cover-preview"
-                                     src="{{ isset($talent) && $talent->cover_image ? Storage::url($talent->cover_image) : '' }}"
-                                     class="w-full aspect-[4/5] object-cover rounded {{ isset($talent) && $talent->cover_image ? '' : 'hidden' }}">
+                                    src="{{ isset($talent) && $talent->cover_image ? Storage::url($talent->cover_image) : '' }}"
+                                    class="w-full aspect-[4/5] object-cover rounded {{ isset($talent) && $talent->cover_image ? '' : 'hidden' }}">
                             </div>
+                            <p class="text-xs opacity-60 mt-1">"Retrato de estudio" edita y REEMPLAZA la imagen actual usando IA (fondo de estudio, misma identidad/pose). Se guarda de inmediato, no requiere presionar "Guardar".</p>
                         </div>
 
                         <label class="label cursor-pointer justify-start gap-2">
@@ -341,6 +350,44 @@ function addRepeaterRow(containerId, inputName, placeholder = '') {
         <button type="button" class="btn btn-sm btn-error btn-outline remove-row">✕</button>
     `;
     container.appendChild(row);
+}
+
+const generateStudioBtn = document.getElementById('generate-studio-btn');
+if (generateStudioBtn) {
+    generateStudioBtn.addEventListener('click', async () => {
+        if (!confirm('Esto va a reemplazar la imagen de portada actual con una versión editada por IA. ¿Continuar?')) return;
+
+        const originalText = generateStudioBtn.textContent;
+        generateStudioBtn.disabled = true;
+        generateStudioBtn.textContent = 'Generando (puede tardar)...';
+
+        try {
+            const response = await fetch(generateStudioBtn.dataset.url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                        || document.querySelector('input[name="_token"]').value,
+                    'Accept': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                alert(data.message || 'Error al generar el retrato de estudio.');
+                return;
+            }
+
+            const preview = document.getElementById('cover-preview');
+            preview.src = data.cover_image_url + '?t=' + Date.now();
+            preview.classList.remove('hidden');
+        } catch (error) {
+            alert('Error de conexión al generar el retrato de estudio.');
+        } finally {
+            generateStudioBtn.disabled = false;
+            generateStudioBtn.textContent = originalText;
+        }
+    });
 }
 
 document.getElementById('add-highlight')?.addEventListener('click', () => {

@@ -119,7 +119,7 @@
             </div>
 
             <div class="flex items-center justify-center">
-                <a href="{{ route('categories.index') }}" class="btn btn-primary btn-lg">
+                <a href="{{ route('contact.page') }}" class="btn btn-primary btn-lg">
                     Contrata ahora
                 </a>
             </div>

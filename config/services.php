@@ -38,6 +38,7 @@ return [
         'key' => env('GEMINI_API_KEY'),
         'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
         'pro_model' => env('GEMINI_PRO_MODEL', 'gemini-2.5-pro'),
+        'image_model' => env('GEMINI_IMAGE_MODEL', 'gemini-3.1-flash-image'),
     ],
     'contact' => [
         'email' => env('CONTACT_EMAIL', env('MAIL_FROM_ADDRESS')),

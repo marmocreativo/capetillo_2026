@@ -47,6 +47,25 @@
                     </div>
                 </div>
 
+                <div class="divider my-0"></div>
+
+                <div>
+                    <p class="text-xs font-semibold opacity-60 mb-2">Retrato de estudio (edición de imagen con IA)</p>
+                    <p class="text-xs opacity-50 mb-2">⚠️ REEMPLAZA la imagen de portada actual de cada talento. Solo aplica a talentos que ya tienen imagen.</p>
+                    <div class="flex flex-col gap-1">
+                        <button type="button" id="studio-selected-btn" class="btn btn-sm btn-secondary justify-start" disabled>
+                            🎨 Generar (seleccionados: <span id="studio-selected-count">0</span>)
+                        </button>
+                        <button type="button" id="studio-all-btn" class="btn btn-sm btn-outline btn-secondary justify-start">
+                            🎨 Generar (todos con portada)
+                        </button>
+                    </div>
+                    <div id="studio-progress" class="hidden text-xs mt-2">
+                        Procesando <span id="studio-current">0</span> / <span id="studio-total">0</span>
+                        — <span id="studio-status" class="opacity-70"></span>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -176,12 +195,17 @@ const selectedCount = document.getElementById('selected-count');
 const extraSelectedBtn = document.getElementById('extra-selected-btn');
 const extraSelectedCount = document.getElementById('extra-selected-count');
 
+const studioSelectedBtn = document.getElementById('studio-selected-btn');
+const studioSelectedCount = document.getElementById('studio-selected-count');
+
 function updateSelectedCount() {
     const count = document.querySelectorAll('.talent-checkbox:checked').length;
     selectedCount.textContent = count;
     selectedBtn.disabled = count === 0;
     extraSelectedCount.textContent = count;
     extraSelectedBtn.disabled = count === 0;
+    studioSelectedCount.textContent = count;
+    studioSelectedBtn.disabled = count === 0;
 }
 
 selectAll.addEventListener('change', () => {
@@ -324,6 +348,76 @@ document.getElementById('extra-all-btn').addEventListener('click', async () => {
     }
     if (!confirm(`Se va a buscar contenido extra para ${ids.length} talento(s) SIN resumen. ¿Continuar?`)) return;
     runExtraBatch(ids);
+});
+
+async function generateStudioForTalent(id) {
+    const url = `{{ url('admin/talents') }}/${id}/generate-studio-image`;
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+    });
+
+    if (response.status === 404) {
+        throw new Error(`Talento #${id} ya no existe, se omite.`);
+    }
+
+    if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || `Error en talento #${id}`);
+    }
+}
+
+async function runStudioBatch(ids) {
+    const progressBox = document.getElementById('studio-progress');
+    const currentEl = document.getElementById('studio-current');
+    const totalEl = document.getElementById('studio-total');
+    const statusEl = document.getElementById('studio-status');
+
+    document.getElementById('studio-selected-btn').disabled = true;
+    document.getElementById('studio-all-btn').disabled = true;
+    progressBox.classList.remove('hidden');
+    totalEl.textContent = ids.length;
+
+    let done = 0;
+    let errors = 0;
+
+    for (const id of ids) {
+        currentEl.textContent = done + 1;
+        statusEl.textContent = `Talento #${id}...`;
+        try {
+            await generateStudioForTalent(id);
+        } catch (e) {
+            errors++;
+            console.error(e);
+        }
+        done++;
+    }
+
+    statusEl.textContent = errors > 0
+        ? `Listo, con ${errors} error(es). Revisa la consola.`
+        : 'Listo, retratos de estudio generados.';
+
+    setTimeout(() => window.location.reload(), 1500);
+}
+
+document.getElementById('studio-selected-btn').addEventListener('click', () => {
+    const ids = Array.from(document.querySelectorAll('.talent-checkbox:checked')).map(cb => cb.value);
+    if (ids.length === 0) return;
+    if (!confirm(`Se va a REEMPLAZAR la imagen de portada de ${ids.length} talento(s) seleccionado(s) con un retrato de estudio generado por IA. Esta acción no se puede deshacer. ¿Continuar?`)) return;
+    runStudioBatch(ids);
+});
+
+document.getElementById('studio-all-btn').addEventListener('click', async () => {
+    const response = await fetch('{{ route("admin.talents.all-ids") }}?with_cover_image=1', {
+        headers: { 'Accept': 'application/json' },
+    });
+    const ids = await response.json();
+    if (ids.length === 0) {
+        alert('No hay talentos con imagen de portada.');
+        return;
+    }
+    if (!confirm(`Se va a REEMPLAZAR la imagen de portada de ${ids.length} talento(s) con un retrato de estudio generado por IA. Esta acción no se puede deshacer. ¿Continuar?`)) return;
+    runStudioBatch(ids);
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>

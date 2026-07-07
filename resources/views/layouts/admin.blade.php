@@ -29,9 +29,14 @@
             :class="collapsed ? 'w-20' : 'w-64'"
         >
             {{-- Header / Logo --}}
-            <div class="h-24 flex items-center px-4 border-b border-base-300 shrink-0">
-                <a href="{{ url('/admin') }}" class="flex items-center gap-2 overflow-hidden">
-                    <img src="{{ asset('images/logo_capetillo_blanco.png') }}" alt="{{ config('app.name') }}" class="h-16 w-auto shrink-0">
+            <div class="h-24 flex items-center justify-center px-2 border-b border-base-300 shrink-0 overflow-hidden">
+                <a href="{{ url('/admin') }}" class="flex items-center justify-center w-full h-full">
+                    <img
+                        src="{{ asset('images/logo_capetillo_blanco.png') }}"
+                        alt="{{ config('app.name') }}"
+                        class="max-h-16 w-auto object-contain transition-all duration-200"
+                        :class="collapsed ? 'max-w-12' : 'max-w-full'"
+                    >
                 </a>
             </div>
 
@@ -79,13 +84,22 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('admin.rosters.index') }}" class="{{ request()->routeIs('admin.home-slides.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Slides del Home' : null">
+                    <a href="{{ route('admin.rosters.index') }}" class="{{ request()->routeIs('admin.rosters.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Rosters' : null">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                            <path d="m21 15-5-5L5 21"></path>
+                            <path d="M2 3h20"></path>
+                            <path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"></path>
+                            <path d="m7 21 5-5 5 5"></path>
                         </svg>
                         <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Rosters</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.contact-messages.index') }}" class="{{ request()->routeIs('admin.contact-messages.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Contactos' : null">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                        </svg>
+                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Contactos</span>
                     </a>
                 </li>
 

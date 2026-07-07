@@ -44,6 +44,7 @@
 
             <form id="contact-page-form" class="flex flex-col gap-3">
                 @csrf
+                <input type="hidden" name="type" value="general">
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div class="form-control">
@@ -96,6 +97,7 @@
 
         const payload = new FormData();
         payload.append('_token', form.querySelector('input[name="_token"]').value);
+        payload.append('type', 'general');
         payload.append('name', `${firstName} ${lastName}`.trim());
         payload.append('email', form.querySelector('[name="email"]').value);
         payload.append('phone', form.querySelector('[name="phone"]').value);

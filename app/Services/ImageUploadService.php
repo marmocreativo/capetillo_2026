@@ -45,6 +45,21 @@ class ImageUploadService
         return $path;
     }
 
+    public function storeFromBinary(string $binaryData, string $directory, int $width = 1024, int $height = 1280, int $quality = 80): string
+    {
+        $image = \Intervention\Image\Laravel\Facades\Image::decode($binaryData)
+            ->cover($width, $height, \Intervention\Image\Alignment::TOP);
+
+        $filename = \Illuminate\Support\Str::uuid() . '.webp';
+        $path = trim($directory, '/') . '/' . $filename;
+
+        $encoded = $image->encodeUsingFormat(\Intervention\Image\Format::WEBP, quality: $quality);
+
+        \Illuminate\Support\Facades\Storage::disk('public')->put($path, (string) $encoded);
+
+        return $path;
+    }
+
     public function storeTransparent(\Illuminate\Http\UploadedFile $file, string $directory, int $quality = 90): string
     {
         $image = \Intervention\Image\Laravel\Facades\Image::decode($file);

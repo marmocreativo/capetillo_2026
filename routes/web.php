@@ -52,6 +52,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::post('talents/{talent}/generate-extra', [\App\Http\Controllers\AdminTalentContentController::class, 'generateExtra'])
     ->name('talents.generate-extra');
 
+    Route::post('talents/{talent}/generate-studio-image', [\App\Http\Controllers\AdminTalentContentController::class, 'generateStudioImage'])
+    ->name('talents.generate-studio-image');
+
     Route::get('talents/batch/all-ids', [\App\Http\Controllers\AdminTalentContentController::class, 'allIds'])
     ->name('talents.all-ids');
 
