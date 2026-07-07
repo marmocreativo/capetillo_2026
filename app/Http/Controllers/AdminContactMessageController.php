@@ -53,4 +53,20 @@ class AdminContactMessageController extends Controller
         return redirect()->route('admin.contact-messages.index')
             ->with('status', 'Mensaje eliminado correctamente.');
     }
+
+    public function bulkDestroy(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return redirect()->route('admin.contact-messages.index')
+                ->with('status', 'No seleccionaste ningún mensaje.');
+        }
+
+        $count = ContactMessage::whereIn('id', $ids)->count();
+        ContactMessage::whereIn('id', $ids)->delete();
+
+        return redirect()->route('admin.contact-messages.index')
+            ->with('status', "{$count} mensaje(s) eliminado(s) correctamente.");
+    }
 }

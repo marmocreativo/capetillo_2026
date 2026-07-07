@@ -45,12 +45,50 @@
     </div>
 </div>
 
-<div class="card bg-base-100 border border-base-300">
+<div class="card bg-base-100 border border-base-300"
+     x-data="{
+        selected: [],
+        allIds: [{{ $messages->pluck('id')->implode(',') }}],
+        toggleAll(checked) {
+            this.selected = checked ? [...this.allIds] : [];
+        },
+        submitDelete(ids) {
+            const form = this.$refs.bulkForm;
+            form.querySelectorAll('input[name=\'ids[]\']').forEach(el => el.remove());
+            ids.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = id;
+                form.appendChild(input);
+            });
+            form.submit();
+        }
+     }">
     <div class="card-body p-0">
+
+        <form method="POST" action="{{ route('admin.contact-messages.bulk-destroy') }}" x-ref="bulkForm">
+            @csrf
+            @method('DELETE')
+        </form>
+
+        <div class="flex items-center justify-between px-4 pt-4" x-show="selected.length > 0" style="display: none;">
+            <span class="text-sm opacity-70" x-text="selected.length + ' seleccionado(s)'"></span>
+            <button type="button" class="btn btn-error btn-sm"
+                    @click="if (confirm('¿Eliminar ' + selected.length + ' mensaje(s)? Esta acción no se puede deshacer.')) submitDelete(selected)">
+                Eliminar seleccionados
+            </button>
+        </div>
+
         <div class="overflow-x-auto">
             <table class="table table-sm">
                 <thead>
                     <tr>
+                        <th class="w-8">
+                            <input type="checkbox" class="checkbox checkbox-sm"
+                                   @change="toggleAll($event.target.checked)"
+                                   :checked="allIds.length > 0 && selected.length === allIds.length">
+                        </th>
                         <th>Fecha</th>
                         <th>Tipo</th>
                         <th>Nombre</th>
@@ -64,6 +102,9 @@
                 <tbody>
                     @forelse ($messages as $message)
                         <tr>
+                            <td>
+                                <input type="checkbox" class="checkbox checkbox-sm" value="{{ $message->id }}" x-model="selected">
+                            </td>
                             <td class="text-xs whitespace-nowrap">{{ $message->created_at->format('d/m/Y H:i') }}</td>
                             <td>
                                 @if ($message->type === 'contratacion')
@@ -102,13 +143,17 @@
                             <td class="text-xs">
                                 {{ $message->cotizacion_final ? '$' . number_format($message->cotizacion_final, 2) : '—' }}
                             </td>
-                            <td class="text-right">
+                            <td class="text-right whitespace-nowrap">
                                 <a href="{{ route('admin.contact-messages.edit', $message) }}" class="btn btn-xs">Ver / Editar</a>
+                                <button type="button" class="btn btn-xs btn-error btn-outline"
+                                        @click="if (confirm('¿Eliminar este mensaje? Esta acción no se puede deshacer.')) submitDelete([{{ $message->id }}])">
+                                    Eliminar
+                                </button>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center py-6 opacity-60">Aún no hay mensajes.</td>
+                            <td colspan="9" class="text-center py-6 opacity-60">Aún no hay mensajes.</td>
                         </tr>
                     @endforelse
                 </tbody>

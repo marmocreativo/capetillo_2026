@@ -1,9 +1,7 @@
-
-<?xml version="1.0"?>
-    
 <!--********* Copyright (c) 2024 Pareto Softare, LLC DBA Simplemaps.com ***************************************
 ************* Free for Commercial Use, full terms at  https://simplemaps.com/resources/svg-license ************
 ************* Attribution is appreciated! https://simplemaps.com *******************************************-->
+<div id="mexico-map-wrapper" class="relative w-full max-w-2xl mx-auto">
 <div id="mexico-map-wrapper" class="relative w-full max-w-2xl mx-auto">
 <svg baseprofile="tiny" fill="#6f9c76" height="630" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5" version="1.2" viewbox="0 0 1000 630" width="1000" xmlns="http://www.w3.org/2000/svg">
  <g id="features">

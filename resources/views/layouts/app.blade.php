@@ -13,7 +13,6 @@
     <meta property="og:title" content="@yield('title', config('app.name'))">
     <meta property="og:description" content="@yield('meta_description', 'Agencia de contratación de talento artístico en México.')">
     <meta property="og:type" content="website">
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen">

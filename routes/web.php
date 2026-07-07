@@ -58,8 +58,16 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('talents/batch/all-ids', [\App\Http\Controllers\AdminTalentContentController::class, 'allIds'])
     ->name('talents.all-ids');
 
+    Route::delete('contact-messages/bulk-destroy', [\App\Http\Controllers\AdminContactMessageController::class, 'bulkDestroy'])
+    ->name('contact-messages.bulk-destroy');
+
     Route::resource('contact-messages', \App\Http\Controllers\AdminContactMessageController::class)
         ->only(['index', 'edit', 'update', 'destroy']);
+
+    Route::resource('users', \App\Http\Controllers\AdminUserController::class);
+
+    Route::get('settings', [\App\Http\Controllers\AdminSettingsController::class, 'index'])->name('settings.index');
+    Route::post('settings/run-command', [\App\Http\Controllers\AdminSettingsController::class, 'runCommand'])->name('settings.run-command');
 });
 
 /*
