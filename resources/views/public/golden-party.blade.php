@@ -95,7 +95,7 @@
                 ],
             ],
         ];
-        $baseUploadUrl = 'http://localhost:8000/images/goldenparty/';
+        $baseUploadUrl = 'https://capetilloproducciones.mx/images/goldenparty/';
     @endphp
 
     @foreach ($galleries as $title => $gallery)
