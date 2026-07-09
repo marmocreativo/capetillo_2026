@@ -6,15 +6,15 @@
 @section('public-content')
 
 <div class="hero min-h-[40vh] overflow-hidden relative mb-12"
-     style="margin-top: -100px; width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); background-image: url('{{ asset('images/fondo_concierto.png') }}');
+     style="margin-top: -100px; width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); background-image: url('{{ asset('images/fondo_concierto.webp') }}');
             background-size: cover; background-position: center;">
     <div class="hero-overlay bg-black/70"></div>
 
-    <div class="hero-content w-full max-w-7xl mx-auto px-6">
+    <div class="hero-content w-full max-w-7xl mx-auto px-6 pt-32">
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-10 items-center w-full">
 
-            <div class="hidden lg:flex lg:col-span-2 items-center justify-center">
-                <img src="https://capetilloproducciones.mx/wp-content/uploads/2024/11/live-media-blanco-1024x419.png"
+            <div class="flex lg:col-span-2 items-center justify-center">
+                <img src="{{ asset('images/live media blanco.png') }}"
                      alt="Live Media" class="max-w-full max-h-[35vh] object-contain">
             </div>
 

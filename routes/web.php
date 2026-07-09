@@ -13,10 +13,17 @@ Route::get('/talento', [\App\Http\Controllers\TalentoController::class, 'index']
 Route::get('/buscar', [\App\Http\Controllers\TalentoController::class, 'search'])->name('search');
 Route::view('/golden-party', 'public.golden-party')->name('golden-party');
 Route::view('/live-media', 'public.live-media')->name('live-media');
+Route::view('/capetillo-network', 'public.capetillo-network')->name('network');
+Route::view('/quienes-somos', 'public.quienes-somos')->name('about');
 Route::view('/contacto', 'public.contact')->name('contact.page');
 Route::post('/contacto', [\App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
 Route::view('/aviso-de-privacidad', 'public.privacy')->name('privacy');
 Route::get('/roster/{roster:public_token}', [\App\Http\Controllers\PublicRosterController::class, 'show'])->name('roster.public');
+
+Route::get('/cotizacion/{contactMessage:public_token}', [\App\Http\Controllers\PublicContactMessageController::class, 'show'])
+    ->name('contact-messages.public.show');
+Route::post('/cotizacion/{contactMessage:public_token}', [\App\Http\Controllers\PublicContactMessageController::class, 'update'])
+    ->name('contact-messages.public.update');
 
 
 /*
@@ -62,7 +69,16 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     ->name('contact-messages.bulk-destroy');
 
     Route::resource('contact-messages', \App\Http\Controllers\AdminContactMessageController::class)
-        ->only(['index', 'edit', 'update', 'destroy']);
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+
+    Route::post('contact-messages/{contactMessage}/talents', [\App\Http\Controllers\AdminContactMessageController::class, 'addTalents'])
+        ->name('contact-messages.talents.store');
+    Route::put('contact-messages/{contactMessage}/talents/{contactMessageTalent}', [\App\Http\Controllers\AdminContactMessageController::class, 'updateTalent'])
+        ->name('contact-messages.talents.update');
+    Route::delete('contact-messages/{contactMessage}/talents/{contactMessageTalent}', [\App\Http\Controllers\AdminContactMessageController::class, 'removeTalent'])
+        ->name('contact-messages.talents.destroy');
+    Route::get('contact-messages/{contactMessage}/export', [\App\Http\Controllers\AdminContactMessageExportController::class, 'export'])
+        ->name('contact-messages.export');
 
     Route::resource('users', \App\Http\Controllers\AdminUserController::class);
 

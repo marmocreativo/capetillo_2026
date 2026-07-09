@@ -141,32 +141,48 @@
 </script>
 @endif
 
-<div class="stats stats-vertical md:stats-horizontal shadow w-full my-10 bg-base-100">
+<div class="stats stats-vertical md:stats-horizontal shadow w-full my-6 bg-base-100">
     <div class="stat place-items-center">
-        <div class="stat-title">Talentos disponibles</div>
-        <div class="stat-value text-primary">+300</div>
-        <div class="stat-desc">En 13 categorías distintas</div>
+        <div class="stat-title">Eventos creados</div>
+        <div class="stat-value text-primary">+12 MIL</div>
+        <div class="stat-desc">Producidos y coordinados por Capetillo</div>
     </div>
     <div class="stat place-items-center">
-        <div class="stat-title">Eventos realizados</div>
-        <div class="stat-value text-primary">+1,200</div>
-        <div class="stat-desc">En todo México</div>
+        <div class="stat-title">Empresas</div>
+        <div class="stat-value text-primary">+750</div>
+        <div class="stat-desc">Que han confiado en nosotros</div>
     </div>
     <div class="stat place-items-center">
-        <div class="stat-title">Años de experiencia</div>
-        <div class="stat-value text-primary">15+</div>
-        <div class="stat-desc">Conectando talento y eventos</div>
+        <div class="stat-title">Espectadores</div>
+        <div class="stat-value text-primary">+10 M</div>
+        <div class="stat-desc">Disfrutando eventos de alta calidad</div>
     </div>
     <div class="stat place-items-center">
-        <div class="stat-title">Satisfacción</div>
-        <div class="stat-value text-primary">98%</div>
-        <div class="stat-desc">Clientes que repiten</div>
+        <div class="stat-title">Experiencia</div>
+        <div class="stat-value text-primary">27+</div>
+        <div class="stat-desc">Años conectando talento y eventos</div>
+    </div>
+</div>
+
+<div class="hero py-16 my-4">
+    <div class="hero-content flex-col lg:flex-row-reverse gap-10 max-w-5xl">
+        <img src="{{ asset('images/logo_capetillo_blanco.svg') }}" class="max-w-sm w-full object-cover" alt="Capetillo Producciones" />
+        <div class="text-center lg:text-left">
+            <span class="badge badge-primary font-semibold mb-3">+27 años de trayectoria</span>
+            <h2 class="text-2xl md:text-3xl font-bold uppercase mb-4">Más de 12 mil eventos, un solo nombre</h2>
+            <p class="opacity-80 mb-6">
+                Capetillo Producciones es agencia líder en entretenimiento en México, USA y LATAM,
+                con más de 750 empresas que han confiado en nosotros y más de 10 millones de
+                espectadores disfrutando de eventos de altísima calidad.
+            </p>
+            <a href="{{ route('about') }}" class="btn btn-outline btn-primary">Conoce quiénes somos</a>
+        </div>
     </div>
 </div>
 
 <div class="my-14">
     <div class="fixed inset-0 -z-10 bg-cover bg-center"
-         style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ asset('images/fondo_concierto.png') }}');"></div>
+         style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ asset('images/fondo_concierto.webp') }}');"></div>
     <h2 class="text-2xl md:text-3xl font-bold text-center mb-2">Algunos de nuestros talentos</h2>
     <p class="text-center opacity-70 mb-8">Solo una muestra de lo que puedes contratar hoy mismo</p>
 
@@ -222,6 +238,63 @@
     requestAnimationFrame(step);
 })();
 </script>
+
+{{-- CLIENTES --}}
+<div class="my-16 text-center">
+    <h2 class="text-2xl md:text-3xl font-bold mb-10 uppercase text-primary">Clientes que confían en nosotros</h2>
+
+    @php
+        $clientLogos = [
+            'cliente_1.jpg', 'cliente_2.jpg', 'cliente_3.jpg', 'cliente_4.jpg', 'cliente_5.jpg',
+            'cliente_6.jpg', 'cliente_7.jpg', 'cliente_8.jpg', 'cliente_9.jpg',
+            'cliente_10.jpg', 'cliente_11.jpg', 'cliente_12.jpg', 'cliente_13.jpg', 'cliente_14.jpg',
+            'cliente_15.jpg', 'cliente_16.jpg', 'cliente_17.jpg', 'cliente_18.jpg', 'cliente_19.jpg',
+        ];
+    @endphp
+
+    <div class="clients-marquee bg-base-100 shadow py-8 relative overflow-hidden">
+        <div class="clients-marquee-track">
+            @foreach ($clientLogos as $logo)
+                <img src="{{ asset('images/clientes/' . $logo) }}" alt="Logo cliente" class="clients-marquee-logo">
+            @endforeach
+            @foreach ($clientLogos as $logo)
+                <img src="{{ asset('images/clientes/' . $logo) }}" alt="Logo cliente" class="clients-marquee-logo" aria-hidden="true">
+            @endforeach
+        </div>
+    </div>
+</div>
+
+<style>
+.clients-marquee {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.clients-marquee-track {
+    display: flex;
+    align-items: center;
+    width: max-content;
+    gap: 3.5rem;
+    animation: clients-marquee-scroll 35s linear infinite;
+}
+
+.clients-marquee:hover .clients-marquee-track {
+    animation-play-state: paused;
+}
+
+.clients-marquee-logo {
+    height: 5rem;
+    width: auto;
+    object-fit: contain;
+    opacity: 0.9;
+    flex-shrink: 0;
+}
+
+@keyframes clients-marquee-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+</style>
 
 <div class="hero bg-base-200/50 backdrop-lg p-10 my-10">
     <div class="hero-content w-full max-w-4xl mx-auto">

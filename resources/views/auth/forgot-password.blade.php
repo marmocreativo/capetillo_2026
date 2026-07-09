@@ -14,7 +14,7 @@
     <div class="relative z-10 w-full max-w-md px-6 py-10">
 
         <div class="flex justify-center mb-8">
-            <img src="{{ asset('images/logo_capetillo_blanco.png') }}" alt="Capetillo Producciones" class="h-16 w-auto">
+            <img src="{{ asset('images/logo_capetillo_blanco.svg') }}" alt="Capetillo Producciones" class="h-16 w-auto">
         </div>
 
         <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl shadow-2xl p-8">

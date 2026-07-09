@@ -9,7 +9,7 @@
      style="margin-top: -100px; width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); background-image: url('https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=1600&q=80');
             background-size: cover; background-position: center;"> 
     <div class="hero-overlay bg-black/70"></div>
-    <div class="hero-content flex-col md:flex-row text-start w-full">
+    <div class="hero-content flex-col md:flex-row text-start w-full pt-32">
         <div class="max-w-2xl w-full">
             <h1 class="text-3xl md:text-5xl font-bold text-white leading-tight">
                 Resultados de búsqueda
@@ -35,7 +35,7 @@
 
 <div class="max-w-7xl mx-auto p-2">
     <div class="fixed inset-0 -z-10 bg-cover bg-center"
-         style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ asset('images/fondo_concierto.png') }}');"></div>
+         style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ asset('images/fondo_concierto.webp') }}');"></div>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             @forelse ($talents as $talent)
                 @php $category = $talent->categories->first(); @endphp

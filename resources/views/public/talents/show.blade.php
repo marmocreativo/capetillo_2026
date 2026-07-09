@@ -9,7 +9,7 @@
 <div class="max-w-7xl mx-auto p-2">
 
     <div class="fixed inset-0 -z-10 bg-cover bg-center"
-         style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ asset('images/fondo_concierto.png') }}');"></div>
+         style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ asset('images/fondo_concierto.webp') }}');"></div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
@@ -188,28 +188,29 @@
 
 
 <dialog id="contact-modal" class="modal modal-bottom sm:modal-middle">
-    <div class="modal-box max-w-3xl p-0 overflow-hidden">
+    <div class="modal-box max-w-lg p-0 overflow-hidden flex flex-col max-h-[90vh]">
         <form method="dialog">
             <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 z-10">✕</button>
         </form>
 
-        <div class="grid grid-cols-1 md:grid-cols-5">
+        <div class="flex items-center gap-3 sm:gap-4 p-4 sm:p-6 pb-3 sm:pb-4 shrink-0 border-b border-base-content/10">
+            <div class="w-14 h-14 sm:w-20 sm:h-20 shrink-0 rounded-box overflow-hidden bg-black">
+                @if ($talent->cover_image)
+                    <img src="{{ Storage::url($talent->cover_image) }}" alt="{{ $talent->name }}" class="w-full h-full object-cover object-top">
+                @else
+                    <div class="w-full h-full flex items-center justify-center text-2xl sm:text-3xl opacity-30">🎤</div>
+                @endif
+            </div>
+            <div>
+                <h3 class="font-bold text-base sm:text-lg mb-0.5 sm:mb-1 leading-snug">Contrata a {{ $talent->name }}</h3>
+                <p class="text-xs sm:text-sm opacity-70 leading-snug">Llena tus datos y nos comunicaremos contigo lo antes posible.</p>
+            </div>
+        </div>
 
-                <div class="hidden md:flex md:col-span-2 items-center justify-center h-full min-h-[500px] bg-black p-4">
-                    @if ($talent->cover_image)
-                        <img src="{{ Storage::url($talent->cover_image) }}" alt="{{ $talent->name }}" class="max-w-full max-h-full object-contain">
-                    @else
-                        <div class="w-full h-full flex items-center justify-center text-6xl opacity-30">🎤</div>
-                    @endif
-                </div>
+        <div class="overflow-y-auto px-4 sm:px-6 py-4 sm:py-5">
+            <div id="contact-form-alert" class="hidden alert mb-4 text-sm"></div>
 
-                <div class="md:col-span-3 p-6">
-                <h3 class="font-bold text-lg mb-1">Contrata a {{ $talent->name }}</h3>
-                <p class="text-sm opacity-70 mb-4">Llena tus datos y nos comunicaremos contigo lo antes posible.</p>
-
-                <div id="contact-form-alert" class="hidden alert mb-4 text-sm"></div>
-
-                <form id="contact-form" class="flex flex-col gap-3">
+            <form id="contact-form" class="flex flex-col gap-4">
                     @csrf
                     <input type="hidden" name="type" value="contratacion">
                     <input type="hidden" name="talent_id" value="{{ $talent->id }}">
@@ -230,14 +231,20 @@
                         <input type="tel" name="phone" class="input input-bordered w-full">
                     </div>
 
-                    <div class="form-control">
-                        <label class="label"><span class="label-text">Estado de la república</span></label>
-                        <select name="estado_republica" class="select select-bordered w-full" required>
-                            <option value="" disabled selected>Selecciona tu estado</option>
-                            @foreach (config('estados_mexico') as $estado)
-                                <option value="{{ $estado }}">{{ $estado }}</option>
-                            @endforeach
-                        </select>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Estado de la rep.</span></label>
+                            <select name="estado_republica" class="select select-bordered w-full" required>
+                                <option value="" disabled selected>Selecciona tu estado</option>
+                                @foreach (config('estados_mexico') as $estado)
+                                    <option value="{{ $estado }}">{{ $estado }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Ciudad</span></label>
+                            <input type="text" name="ciudad" class="input input-bordered w-full" placeholder="Opcional">
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
@@ -252,6 +259,44 @@
                     </div>
 
                     <div class="form-control">
+                        <label class="label"><span class="label-text">Tipo de evento</span></label>
+                        <select name="tipo_evento" class="select select-bordered w-full">
+                            <option value="" disabled selected>Selecciona una opción</option>
+                            <option value="privado">Privado</option>
+                            <option value="corporativo">Corporativo</option>
+                            <option value="publico_masivo">Público / Masivo</option>
+                            <option value="social">Social (boda / XV)</option>
+                            <option value="gubernamental">Gubernamental</option>
+                        </select>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="checkbox" name="con_venta_boletos" value="1" class="checkbox checkbox-sm">
+                            <span class="label-text">Con venta de boletos</span>
+                        </label>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">¿Tienes presupuesto asignado?</span></label>
+                        <div class="flex gap-4 text-sm">
+                            <label class="label cursor-pointer justify-start gap-2">
+                                <input type="radio" name="tiene_presupuesto" value="1" class="radio radio-sm" id="presupuesto-si">
+                                <span class="label-text">Sí</span>
+                            </label>
+                            <label class="label cursor-pointer justify-start gap-2">
+                                <input type="radio" name="tiene_presupuesto" value="0" class="radio radio-sm" id="presupuesto-no" checked>
+                                <span class="label-text">No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-control" id="presupuesto-aproximado-wrapper" style="display:none;">
+                        <label class="label"><span class="label-text">Presupuesto aproximado (MXN)</span></label>
+                        <input type="number" min="0" step="0.01" name="presupuesto_aproximado" class="input input-bordered w-full" placeholder="Opcional">
+                    </div>
+
+                    <div class="form-control">
                         <label class="label"><span class="label-text">Mensaje</span></label>
                         <textarea name="message" class="textarea textarea-bordered w-full" rows="3">Me interesa contratar a {{ $talent->name }}.</textarea>
                     </div>
@@ -261,8 +306,6 @@
                     </div>
                 </form>
             </div>
-
-        </div>
     </div>
     <form method="dialog" class="modal-backdrop">
         <button>close</button>
@@ -292,11 +335,25 @@
     // Modal de contacto
     const modal = document.getElementById('contact-modal');
     document.querySelectorAll('.open-contact-modal').forEach(btn => {
-        btn.addEventListener('click', () => modal.showModal());
+        btn.addEventListener('click', () => {
+            contactForm.classList.remove('hidden');
+            alertBox.classList.add('hidden');
+            modal.showModal();
+        });
     });
 
     const contactForm = document.getElementById('contact-form');
     const alertBox = document.getElementById('contact-form-alert');
+
+    const presupuestoSi = document.getElementById('presupuesto-si');
+    const presupuestoNo = document.getElementById('presupuesto-no');
+    const presupuestoWrapper = document.getElementById('presupuesto-aproximado-wrapper');
+
+    function togglePresupuestoWrapper() {
+        presupuestoWrapper.style.display = presupuestoSi.checked ? 'block' : 'none';
+    }
+    presupuestoSi.addEventListener('change', togglePresupuestoWrapper);
+    presupuestoNo.addEventListener('change', togglePresupuestoWrapper);
 
     contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -322,6 +379,7 @@
             alertBox.classList.remove('hidden', 'alert-error');
             alertBox.classList.add('alert-success');
             contactForm.reset();
+            contactForm.classList.add('hidden');
         } catch (err) {
             alertBox.textContent = 'Hubo un error al enviar tu mensaje. Intenta por WhatsApp.';
             alertBox.classList.remove('hidden', 'alert-success');

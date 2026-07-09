@@ -3,6 +3,7 @@
 @section('admin-content')
 <div class="flex items-center justify-between mb-1">
     <h1 class="text-2xl font-bold">Mensajes de contacto</h1>
+    <a href="{{ route('admin.contact-messages.create') }}" class="btn btn-primary btn-sm">+ Nueva cotización</a>
 </div>
 <p class="opacity-60 mb-6">Consultas generales y solicitudes de contratación recibidas desde el sitio público.</p>
 
@@ -33,7 +34,9 @@
                 <select name="status" class="select select-bordered select-sm">
                     <option value="">Todos</option>
                     <option value="contacto_inicial" @selected(request('status') === 'contacto_inicial')>Contacto inicial</option>
-                    <option value="seguimiento" @selected(request('status') === 'seguimiento')>Seguimiento</option>
+                    <option value="procesando" @selected(request('status') === 'procesando')>Procesando</option>
+                    <option value="venta_no_concluida" @selected(request('status') === 'venta_no_concluida')>Venta no concluida</option>
+                    <option value="cotizacion_completa" @selected(request('status') === 'cotizacion_completa')>Cotización completa</option>
                     <option value="contrato_cerrado" @selected(request('status') === 'contrato_cerrado')>Contrato cerrado</option>
                     <option value="contrato_pagado" @selected(request('status') === 'contrato_pagado')>Contrato pagado</option>
                 </select>
@@ -125,13 +128,17 @@
                                 @php
                                     $statusColors = [
                                         'contacto_inicial' => 'badge-info',
-                                        'seguimiento' => 'badge-warning',
+                                        'procesando' => 'badge-warning',
+                                        'venta_no_concluida' => 'badge-error',
+                                        'cotizacion_completa' => 'badge-accent',
                                         'contrato_cerrado' => 'badge-success',
                                         'contrato_pagado' => 'badge-success',
                                     ];
                                     $statusLabels = [
                                         'contacto_inicial' => 'Contacto inicial',
-                                        'seguimiento' => 'Seguimiento',
+                                        'procesando' => 'Procesando',
+                                        'venta_no_concluida' => 'Venta no concluida',
+                                        'cotizacion_completa' => 'Cotización completa',
                                         'contrato_cerrado' => 'Contrato cerrado',
                                         'contrato_pagado' => 'Contrato pagado',
                                     ];

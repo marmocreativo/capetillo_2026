@@ -2,23 +2,21 @@
 
 @section('content')
 
-<div class="drawer">
+<div class="drawer overflow-x-hidden">
     <input id="mobile-drawer" type="checkbox" class="drawer-toggle">
 
-    <div class="drawer-content">
+    <div class="drawer-content overflow-x-hidden">
 
         <header id="site-header" class="sticky top-0 z-50 transition-all duration-300 bg-transparent">
             <div class="navbar px-4 md:px-6">
-                <div class="navbar-start">
-                    <a href="{{ url('/') }}">
-                        <img src="{{ asset('images/logo_capetillo_blanco.png') }}" alt="{{ config('app.name') }}" class="h-[60px] w-auto">
+                <div class="navbar-start gap-3 lg:gap-6 min-w-0">
+                    <a href="{{ url('/') }}" class="shrink-0">
+                        <img src="{{ asset('images/logo_capetillo_blanco.svg') }}" alt="{{ config('app.name') }}" class="h-[40px] w-auto">
                     </a>
-                </div>
 
-                <div class="navbar-center hidden lg:flex">
-                    <form action="{{ route('search') }}" method="GET" class="w-72">
-                        <label class="input input-bordered flex items-center gap-2 bg-base-100/90">
-                            <svg class="h-4 w-4 opacity-60" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <form action="{{ route('search') }}" method="GET" class="hidden md:block w-full max-w-[10rem] lg:max-w-xs">
+                        <label class="input input-bordered input-sm flex items-center gap-2 bg-base-100/90">
+                            <svg class="h-4 w-4 opacity-60 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <path d="m21 21-4.3-4.3"></path>
                             </svg>
@@ -27,21 +25,23 @@
                     </form>
                 </div>
 
-                <div class="navbar-end gap-2">
-                    <div class="hidden lg:flex items-center gap-1">
-                        <a href="{{ route('categories.index') }}" class="btn btn-sm btn-ghost">Talento</a>
-                        <a href="{{ route('golden-party') }}" class="btn btn-sm btn-ghost">Golden Party</a>
-                        <a href="{{ route('live-media') }}" class="btn btn-sm btn-ghost">Live Media</a>
-                        <a href="{{ route('contact.page') }}" class="btn btn-sm btn-ghost">Contacto</a>
-
-                        @auth
-                            <a href="{{ url('/admin') }}" class="btn btn-sm btn-primary">Administración</a>
-                        @else
-                            <a href="{{ route('login') }}" class="btn btn-sm btn-primary">Iniciar sesión</a>
-                        @endauth
+                <div class="navbar-end gap-1 lg:gap-2">
+                    <div class="hidden xl:flex items-center gap-0.5">
+                        <a href="{{ route('categories.index') }}" class="btn btn-sm btn-ghost px-2">Talento</a>
+                        <a href="{{ route('about') }}" class="btn btn-sm btn-ghost px-2">Quiénes Somos</a>
+                        <a href="{{ route('golden-party') }}" class="btn btn-sm btn-ghost px-2">Golden Party</a>
+                        <a href="{{ route('live-media') }}" class="btn btn-sm btn-ghost px-2">Live Media</a>
+                        <a href="{{ route('network') }}" class="btn btn-sm btn-ghost px-2">Capetillo Network</a>
+                        <a href="{{ route('contact.page') }}" class="btn btn-sm btn-ghost px-2">Contacto</a>
                     </div>
 
-                    <label for="mobile-drawer" class="btn btn-ghost btn-circle lg:hidden" aria-label="Abrir menú">
+                    @auth
+                        <a href="{{ url('/admin') }}" class="btn btn-sm btn-primary shrink-0">Administración</a>
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-sm btn-primary shrink-0">Iniciar sesión</a>
+                    @endauth
+
+                    <label for="mobile-drawer" class="btn btn-ghost btn-circle xl:hidden" aria-label="Abrir menú">
                         <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
@@ -58,7 +58,7 @@
             <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
 
                 <div>
-                    <img src="{{ asset('images/logo_capetillo_blanco.png') }}" alt="{{ config('app.name') }}" class="h-12 w-auto mb-4 p-2 rounded">
+                    <img src="{{ asset('images/logo_capetillo_blanco.svg') }}" alt="{{ config('app.name') }}" class="h-12 w-auto mb-4 p-2 rounded">
                     <p class="text-sm opacity-70 leading-relaxed">
                         Agencia de contratación de talento artístico con más de 15 años conectando eventos
                         con los comediantes, cantantes, bandas y conferencistas más solicitados de México.
@@ -69,8 +69,10 @@
                     <h3 class="font-bold mb-3">Enlaces</h3>
                     <ul class="space-y-2 text-sm opacity-80">
                         <li><a href="{{ route('categories.index') }}">Talento</a></li>
+                        <li><a href="{{ route('about') }}">Quiénes Somos</a></li>
                         <li><a href="{{ route('golden-party') }}">Golden Party</a></li>
                         <li><a href="{{ route('live-media') }}">Live Media</a></li>
+                        <li><a href="{{ route('network') }}">Capetillo Network</a></li>
                         <li><a href="{{ route('contact.page') }}">Contacto</a></li>
                         <li><a href="{{ route('privacy') }}" class="link link-hover">Aviso de privacidad</a></li>
                     </ul>
@@ -125,7 +127,7 @@
 
         <div class="menu bg-base-100 min-h-full w-80 max-w-[85vw] p-6 gap-2">
             <a href="{{ url('/') }}" class="mb-4">
-                <img src="{{ asset('images/logo_capetillo_blanco.png') }}" alt="{{ config('app.name') }}" class="h-10 w-auto">
+                <img src="{{ asset('images/logo_capetillo_blanco.svg') }}" alt="{{ config('app.name') }}" class="h-10 w-auto">
             </a>
 
             <form action="{{ route('search') }}" method="GET" class="mb-4">
@@ -140,8 +142,10 @@
 
             <ul class="space-y-1">
                 <li><a href="{{ route('categories.index') }}">Talento</a></li>
+                <li><a href="{{ route('about') }}">Quiénes Somos</a></li>
                 <li><a href="{{ route('golden-party') }}">Golden Party</a></li>
                 <li><a href="{{ route('live-media') }}">Live Media</a></li>
+                <li><a href="{{ route('network') }}">Capetillo Network</a></li>
                 <li><a href="{{ route('contact.page') }}">Contacto</a></li>
             </ul>
 

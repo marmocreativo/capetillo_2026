@@ -6,15 +6,15 @@
 @section('public-content')
 
 <div class="hero min-h-[45vh] overflow-hidden relative mb-12"
-     style="margin-top: -100px; width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); background-image: url('{{ asset('images/fondo_concierto.png') }}');
+     style="margin-top: -100px; width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); background-image: url('{{ asset('images/fondo_concierto.webp') }}');
             background-size: cover; background-position: center;">
     <div class="hero-overlay bg-black/70"></div>
 
-    <div class="hero-content w-full max-w-7xl mx-auto px-6">
+    <div class="hero-content w-full max-w-7xl mx-auto px-6 pt-32">
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-10 items-center w-full">
 
-            <div class="hidden lg:flex lg:col-span-2 items-center justify-center">
-                <img src="https://capetilloproducciones.mx/wp-content/uploads/2024/11/Golden-Party-2-1024x768.png"
+            <div class="flex lg:col-span-2 items-center justify-center">
+                <img src="{{ asset('images/Golden Party Dorado.png') }}"
                      alt="Golden Party" class="max-w-full max-h-[35vh] object-contain">
             </div>
 
@@ -55,7 +55,7 @@
                 <h3 class="card-title text-primary">Tipo de eventos</h3>
                 <div class="flex flex-wrap gap-2 mt-2">
                     @foreach (['Bodas', 'XV años', 'Graduaciones', 'Open House', 'Birthday party', 'Gender reveal', 'Fiestas corporativas y empresariales', 'Convenciones', 'Lanzamientos de marcas y productos', 'Inauguraciones'] as $eventType)
-                        <span class="badge badge-outline badge-primary">{{ $eventType }}</span>
+                        <span class="text-sm md:text-md badge badge-outline badge-primary h-auto whitespace-normal text-center py-1.5 leading-snug">{{ $eventType }}</span>
                     @endforeach
                 </div>
             </div>

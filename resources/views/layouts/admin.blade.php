@@ -32,7 +32,7 @@
             <div class="h-24 flex items-center justify-center px-2 border-b border-base-300 shrink-0 overflow-hidden">
                 <a href="{{ url('/admin') }}" class="flex items-center justify-center w-full h-full">
                     <img
-                        src="{{ asset('images/logo_capetillo_blanco.png') }}"
+                        src="{{ asset('images/logo_capetillo_blanco.svg') }}"
                         alt="{{ config('app.name') }}"
                         class="max-h-16 w-auto object-contain transition-all duration-200"
                         :class="collapsed ? 'max-w-12' : 'max-w-full'"

@@ -11,7 +11,7 @@
             background-size: cover; background-position: center;">
     <div class="hero-overlay bg-black/70"></div>
 
-    <div class="hero-content w-full max-w-7xl mx-auto px-6">
+    <div class="hero-content w-full max-w-7xl mx-auto px-6 pt-32">
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-10 items-center w-full">
 
         <div class="hidden lg:block lg:col-span-2 overflow-hidden shadow-lg aspect-[4/5] max-h-[45vh] mx-auto bg-base-200">
@@ -50,7 +50,7 @@
 </div>
 <div class="max-w-7xl mx-auto p-2">
     <div class="fixed inset-0 -z-10 bg-cover bg-center"
-         style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ asset('images/fondo_concierto.png') }}');"></div>
+         style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ asset('images/fondo_concierto.webp') }}');"></div>
     
 
     @if ($featuredTalents->isNotEmpty())
