@@ -53,6 +53,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::post('talents/{talent}/toggle-destacado', [\App\Http\Controllers\AdminTalentController::class, 'toggleDestacado'])
     ->name('talents.toggle-destacado');
 
+    Route::post('talents/{talent}/update-honorarios', [\App\Http\Controllers\AdminTalentController::class, 'updateHonorarios'])
+    ->name('talents.update-honorarios');
+
     Route::post('talents/{talent}/generate-content', [\App\Http\Controllers\AdminTalentContentController::class, 'generate'])
     ->name('talents.generate-content');
 

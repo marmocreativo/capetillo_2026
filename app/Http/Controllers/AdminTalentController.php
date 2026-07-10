@@ -189,6 +189,22 @@ class AdminTalentController extends Controller
         return response()->json(['destacado' => $talent->destacado]);
     }
 
+    public function updateHonorarios(\Illuminate\Http\Request $request, Talent $talent)
+    {
+        $data = $request->validate([
+            'honorarios_default' => ['nullable', 'numeric', 'min:0', 'max:99999999.99'],
+        ]);
+
+        $talent->update($data);
+
+        return response()->json([
+            'honorarios_default' => $talent->honorarios_default,
+            'formatted' => $talent->honorarios_default !== null
+                ? '$' . number_format((float) $talent->honorarios_default, 2)
+                : '—',
+        ]);
+    }
+
     public function reorder(\Illuminate\Http\Request $request)
     {
         $slugs = $request->input('order', []);

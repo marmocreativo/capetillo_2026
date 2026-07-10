@@ -83,7 +83,7 @@
             </button>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto hidden lg:block">
             <table class="table table-sm">
                 <thead>
                     <tr>
@@ -165,6 +165,75 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        <div class="lg:hidden divide-y divide-base-300">
+            @forelse ($messages as $message)
+                @php
+                    $statusColors = [
+                        'contacto_inicial' => 'badge-info',
+                        'procesando' => 'badge-warning',
+                        'venta_no_concluida' => 'badge-error',
+                        'cotizacion_completa' => 'badge-accent',
+                        'contrato_cerrado' => 'badge-success',
+                        'contrato_pagado' => 'badge-success',
+                    ];
+                    $statusLabels = [
+                        'contacto_inicial' => 'Contacto inicial',
+                        'procesando' => 'Procesando',
+                        'venta_no_concluida' => 'Venta no concluida',
+                        'cotizacion_completa' => 'Cotización completa',
+                        'contrato_cerrado' => 'Contrato cerrado',
+                        'contrato_pagado' => 'Contrato pagado',
+                    ];
+                @endphp
+                <div class="p-4 flex flex-col gap-2">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <input type="checkbox" class="checkbox checkbox-sm shrink-0" value="{{ $message->id }}" x-model="selected">
+                            <div class="min-w-0">
+                                <p class="font-medium truncate">{{ $message->name }}</p>
+                                <p class="text-xs opacity-60 truncate">{{ $message->email }}</p>
+                            </div>
+                        </div>
+                        <span class="badge badge-sm {{ $statusColors[$message->status] ?? 'badge-ghost' }} shrink-0">
+                            {{ $statusLabels[$message->status] ?? $message->status }}
+                        </span>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2 text-xs opacity-70">
+                        @if ($message->type === 'contratacion')
+                            <span class="badge badge-primary badge-xs">Contratación</span>
+                        @else
+                            <span class="badge badge-ghost badge-xs">General</span>
+                        @endif
+                        <span>{{ $message->created_at->format('d/m/Y H:i') }}</span>
+                        @if ($message->phone)
+                            <span>· {{ $message->phone }}</span>
+                        @endif
+                    </div>
+
+                    <div class="text-sm">
+                        <span class="opacity-60">Talento:</span> {{ $message->talent_name ?: '—' }}
+                    </div>
+
+                    @if ($message->cotizacion_final)
+                        <div class="text-sm">
+                            <span class="opacity-60">Cotización:</span> ${{ number_format($message->cotizacion_final, 2) }}
+                        </div>
+                    @endif
+
+                    <div class="flex items-center gap-2 mt-1">
+                        <a href="{{ route('admin.contact-messages.edit', $message) }}" class="btn btn-xs flex-1">Ver / Editar</a>
+                        <button type="button" class="btn btn-xs btn-error btn-outline"
+                                @click="if (confirm('¿Eliminar este mensaje? Esta acción no se puede deshacer.')) submitDelete([{{ $message->id }}])">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            @empty
+                <div class="text-center py-6 opacity-60">Aún no hay mensajes.</div>
+            @endforelse
         </div>
     </div>
 </div>

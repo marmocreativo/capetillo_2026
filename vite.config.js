@@ -4,7 +4,7 @@ import { google } from 'laravel-vite-plugin/fonts';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-    //base: '/capetilloproducciones.mx/',
+    base: 'https://capetilloproducciones.mx/',
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.js'],

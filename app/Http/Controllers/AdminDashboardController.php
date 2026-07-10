@@ -100,6 +100,12 @@ class AdminDashboardController extends Controller
             ];
         }
 
+        // Últimos mensajes en contacto inicial
+        $recentInitialMessages = ContactMessage::where('status', 'contacto_inicial')
+            ->latest()
+            ->take(5)
+            ->get();
+
         return view('admin.dashboard', compact(
             'totalTalents',
             'activeTalents',
@@ -115,7 +121,8 @@ class AdminDashboardController extends Controller
             'salesByMonth',
             'contactsByState',
             'topTalentByState',
-            'mexicoMapData'
+            'mexicoMapData',
+            'recentInitialMessages'
         ));
     }
 }

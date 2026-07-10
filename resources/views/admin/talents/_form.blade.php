@@ -12,16 +12,16 @@
     $selectedCategories = old('categories', isset($talent) ? $talent->categories->pluck('id')->toArray() : []);
 @endphp
 
-<div role="tablist" class="tabs tabs-lift">
+<div role="tablist" class="tabs tabs-lift overflow-x-auto">
 
     {{-- TAB 1: General --}}
     <input type="radio" name="talent-tabs" role="tab" class="tab" aria-label="General" checked="checked">
     <div role="tabpanel" class="tab-content bg-base-100 border-base-300 p-6">
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0">
 
             {{-- Columna izquierda: contenido principal --}}
-            <div class="lg:col-span-2 flex flex-col gap-4">
+            <div class="lg:col-span-2 flex flex-col gap-4 min-w-0">
 
                 <div class="form-control">
                     <label class="label"><span class="label-text">Nombre</span></label>
@@ -34,10 +34,10 @@
                 </div>
 
                 <div class="form-control">
-                    <div class="flex justify-between items-center mb-1">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
                         <label class="label"><span class="label-text">Descripción / biografía (HTML)</span></label>
                         @if (isset($talent) && $talent->exists)
-                            <button type="button" id="generate-ai-btn" class="btn btn-xs btn-outline btn-secondary"
+                            <button type="button" id="generate-ai-btn" class="btn btn-xs btn-outline btn-secondary self-start sm:self-auto"
                                 data-url="{{ route('admin.talents.generate-content', $talent) }}">
                                 ✨ Generar con IA
                             </button>
@@ -48,10 +48,10 @@
                 </div>
 
                 <div class="form-control">
-                    <div class="flex justify-between items-center mb-1">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
                         <label class="label"><span class="label-text">Resumen corto</span></label>
                         @if (isset($talent) && $talent->exists)
-                            <button type="button" id="generate-extra-btn" class="btn btn-xs btn-outline btn-secondary"
+                            <button type="button" id="generate-extra-btn" class="btn btn-xs btn-outline btn-secondary self-start sm:self-auto"
                                 data-url="{{ route('admin.talents.generate-extra', $talent) }}">
                                 🔍 Buscar campos extra con IA
                             </button>
@@ -81,15 +81,15 @@
             </div>
 
             {{-- Columna derecha: imagen, estado, categorías --}}
-            <div class="lg:col-span-1">
+            <div class="lg:col-span-1 min-w-0">
                 <div class="card bg-base-100 border border-base-300 lg:sticky lg:top-6">
                     <div class="card-body gap-4">
 
                         <div class="form-control">
-                            <div class="flex justify-between items-center mb-1">
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
                                 <label class="label"><span class="label-text">Imagen de portada (4:5)</span></label>
                                 @if (isset($talent) && $talent->exists && $talent->cover_image)
-                                    <button type="button" id="generate-studio-btn" class="btn btn-xs btn-outline btn-secondary"
+                                    <button type="button" id="generate-studio-btn" class="btn btn-xs btn-outline btn-secondary self-start sm:self-auto"
                                         data-url="{{ route('admin.talents.generate-studio-image', $talent) }}">
                                         🎨 Retrato de estudio con IA
                                     </button>
@@ -99,7 +99,8 @@
                             <div class="mt-2">
                                 <img id="cover-preview"
                                     src="{{ isset($talent) && $talent->cover_image ? Storage::url($talent->cover_image) : '' }}"
-                                    class="w-full aspect-[4/5] object-cover rounded {{ isset($talent) && $talent->cover_image ? '' : 'hidden' }}">
+                                    class="w-full max-w-full aspect-[4/5] object-cover rounded {{ isset($talent) && $talent->cover_image ? '' : 'hidden' }}"
+                                    style="max-width: 100%;">
                             </div>
                             <p class="text-xs opacity-60 mt-1">"Retrato de estudio" edita y REEMPLAZA la imagen actual usando IA (fondo de estudio, misma identidad/pose). Se guarda de inmediato, no requiere presionar "Guardar".</p>
                         </div>
@@ -154,7 +155,7 @@
             <label class="label"><span class="label-text">Galería de imágenes</span></label>
 
             @if (isset($talent) && $talent->exists && $talent->images->isNotEmpty())
-                <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-3">
+                <div class="grid grid-cols-2 sm:grid-cols-6 gap-3 mb-3">
                     @foreach ($talent->images as $image)
                         <div class="relative">
                             <img src="{{ Storage::url($image->path) }}" class="w-full aspect-square object-cover rounded">
@@ -228,9 +229,9 @@
 
 </div>
 
-<div class="mt-6 flex gap-2">
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a href="{{ route('admin.talents.index') }}" class="btn btn-ghost">Cancelar</a>
+<div class="mt-6 flex flex-col sm:flex-row gap-2">
+    <button type="submit" class="btn btn-primary w-full sm:w-auto">Guardar</button>
+    <a href="{{ route('admin.talents.index') }}" class="btn btn-ghost w-full sm:w-auto">Cancelar</a>
 </div>
 
 <script>

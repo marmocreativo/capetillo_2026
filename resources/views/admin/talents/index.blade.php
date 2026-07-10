@@ -1,17 +1,17 @@
 @extends('layouts.admin')
 
 @section('admin-content')
-<div class="flex justify-between items-center mb-4">
+<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
     <h1 class="text-2xl font-bold">Talentos</h1>
     <div class="flex gap-2">
-        <div class="dropdown dropdown-end">
+        <div class="dropdown">
             <label tabindex="0" class="btn btn-outline btn-sm">
                 Más opciones
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
             </label>
-            <div tabindex="0" class="dropdown-content z-10 menu p-4 shadow-lg bg-base-100 rounded-box w-80 gap-3 border border-base-300">
+            <div tabindex="0" class="dropdown-content z-10 menu p-4 shadow-lg bg-base-100 rounded-box w-[90vw] max-w-80 gap-3 border border-base-300 left-0 sm:left-auto sm:right-0">
 
                 <div>
                     <p class="text-xs font-semibold opacity-60 mb-2">Contenido (biografía + SEO)</p>
@@ -115,9 +115,9 @@
     @endif
 </form>
 
-<p class="text-xs opacity-60 mb-2">El orden por arrastre solo reordena los talentos visibles en esta página. Si tienes muchos talentos, sube el número de "por página" arriba (hasta 250) para reordenarlos todos a la vez.</p>
+<p class="text-xs opacity-60 mb-2 hidden lg:block">El orden por arrastre solo reordena los talentos visibles en esta página. Si tienes muchos talentos, sube el número de "por página" arriba (hasta 250) para reordenarlos todos a la vez.</p>
 
-<div class="overflow-x-auto bg-base-100 rounded-box shadow">
+<div class="overflow-x-auto bg-base-100 rounded-box shadow hidden lg:block">
     <table class="table">
         <thead>
             <tr>
@@ -127,6 +127,7 @@
                 <th>Nombre</th>
                 <th>Slug</th>
                 <th>Categorías</th>
+                <th>Honorarios</th>
                 <th>Activo</th>
                 <th>Destacado</th>
                 <th class="text-right">Acciones</th>
@@ -150,6 +151,14 @@
                         @foreach ($talent->categories as $category)
                             <span class="badge badge-sm badge-outline">{{ $category->name }}</span>
                         @endforeach
+                    </td>
+                    <td>
+                        <span class="honorarios-cell inline-flex items-center gap-1 cursor-pointer hover:underline decoration-dashed"
+                              data-id="{{ $talent->id }}"
+                              data-value="{{ $talent->honorarios_default ?? '' }}"
+                              data-url="{{ route('admin.talents.update-honorarios', $talent) }}">
+                            {{ $talent->honorarios_default !== null ? '$' . number_format($talent->honorarios_default, 2) : '—' }}
+                        </span>
                     </td>
                     <td>
                         <input type="checkbox" class="toggle toggle-success toggle-sm toggle-active"
@@ -177,6 +186,61 @@
             @endforelse
         </tbody>
     </table>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:hidden">
+    @forelse ($talents as $talent)
+        <div class="card bg-base-100 border border-base-300">
+            <div class="card-body p-4 gap-2">
+                <div class="flex gap-3">
+                    @if ($talent->cover_image)
+                        <img src="{{ Storage::url($talent->cover_image) }}" class="w-16 h-16 object-cover rounded shrink-0">
+                    @else
+                        <div class="w-16 h-16 bg-base-200 rounded shrink-0"></div>
+                    @endif
+                    <div class="min-w-0 flex-1">
+                        <p class="font-medium truncate">{{ $talent->name }}</p>
+                        <p class="text-xs opacity-60 truncate">/{{ $talent->slug }}</p>
+                        <p class="text-sm mt-1">
+                            {{ $talent->honorarios_default !== null ? '$' . number_format($talent->honorarios_default, 2) : 'Sin honorarios' }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-1">
+                    @foreach ($talent->categories as $category)
+                        <span class="badge badge-xs badge-outline">{{ $category->name }}</span>
+                    @endforeach
+                </div>
+
+                <div class="flex items-center gap-4 text-xs mt-1">
+                    <label class="flex items-center gap-1.5">
+                        <input type="checkbox" class="toggle toggle-success toggle-xs toggle-active"
+                            data-url="{{ route('admin.talents.toggle-active', $talent) }}"
+                            {{ $talent->is_active ? 'checked' : '' }}>
+                        Activo
+                    </label>
+                    <label class="flex items-center gap-1.5">
+                        <input type="checkbox" class="toggle toggle-warning toggle-xs toggle-destacado"
+                            data-url="{{ route('admin.talents.toggle-destacado', $talent) }}"
+                            {{ $talent->destacado ? 'checked' : '' }}>
+                        Destacado
+                    </label>
+                </div>
+
+                <div class="flex items-center gap-2 mt-2">
+                    <a href="{{ route('admin.talents.edit', $talent) }}" class="btn btn-xs flex-1">Editar</a>
+                    <form action="{{ route('admin.talents.destroy', $talent) }}" method="POST" onsubmit="return confirm('¿Eliminar este talento?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-xs btn-error btn-outline">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @empty
+        <p class="text-center py-6 opacity-60 col-span-full">Aún no hay talentos.</p>
+    @endforelse
 </div>
 
 <div class="mt-4">
@@ -475,5 +539,74 @@ if (sortableBody) {
         },
     });
 }
+</script>
+<script>
+document.querySelectorAll('.honorarios-cell').forEach(cell => {
+    cell.addEventListener('click', function handleClick() {
+        if (cell.querySelector('input')) return; // ya está en modo edición
+
+        const currentValue = cell.dataset.value;
+        const url = cell.dataset.url;
+        const originalHtml = cell.innerHTML;
+
+        cell.innerHTML = '';
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.step = '0.01';
+        input.min = '0';
+        input.value = currentValue;
+        input.className = 'input input-bordered input-xs w-24';
+        cell.appendChild(input);
+        input.focus();
+        input.select();
+
+        const restore = (html) => {
+            cell.innerHTML = html;
+        };
+
+        const save = async () => {
+            const newValue = input.value === '' ? null : input.value;
+            input.disabled = true;
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ honorarios_default: newValue }),
+                });
+
+                if (!res.ok) throw new Error();
+
+                const data = await res.json();
+                cell.dataset.value = data.honorarios_default ?? '';
+                restore(data.formatted);
+            } catch (e) {
+                alert('No se pudo guardar el honorario.');
+                restore(originalHtml);
+            }
+        };
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                save();
+            }
+            if (e.key === 'Escape') {
+                restore(originalHtml);
+            }
+        });
+
+        input.addEventListener('blur', () => {
+            // Si sigue habiendo un input (no se guardó por Enter), lo tratamos como cancelar.
+            if (cell.contains(input) && !input.disabled) {
+                restore(originalHtml);
+            }
+        });
+    });
+});
 </script>
 @endsection

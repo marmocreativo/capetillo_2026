@@ -16,7 +16,7 @@
             <span class="text-lg font-semibold ml-2">Administración</span>
         </div>
 
-        <main class="p-6">
+        <main class="p-6 overflow-x-hidden">
             @yield('admin-content')
         </main>
     </div>
@@ -25,8 +25,8 @@
         <label for="admin-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
 
         <aside
-            class="bg-base-100 min-h-full flex flex-col border-r border-base-300 transition-all duration-200"
-            :class="collapsed ? 'w-20' : 'w-64'"
+            class="bg-base-100 min-h-full flex flex-col border-r border-base-300 transition-all duration-200 w-64"
+            :class="collapsed ? 'lg:w-20' : 'lg:w-64'"
         >
             {{-- Header / Logo --}}
             <div class="h-24 flex items-center justify-center px-2 border-b border-base-300 shrink-0 overflow-hidden">

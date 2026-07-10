@@ -4,6 +4,29 @@
 <h1 class="text-2xl font-bold mb-1">Dashboard</h1>
 <p class="opacity-60 mb-6">Bienvenido, {{ auth()->user()->name }}.</p>
 
+{{-- Últimos mensajes en contacto inicial --}}
+<div class="card bg-base-100 border border-base-300 mb-6">
+    <div class="card-body">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="font-semibold">Últimos mensajes sin atender</h3>
+            <a href="{{ route('admin.contact-messages.index', ['status' => 'contacto_inicial']) }}" class="text-xs link link-hover">Ver todos</a>
+        </div>
+
+        @forelse ($recentInitialMessages as $message)
+            <a href="{{ route('admin.contact-messages.edit', $message) }}"
+               class="flex items-center justify-between py-2 border-b border-base-300 last:border-0 hover:bg-base-200/50 -mx-2 px-2 rounded transition-colors">
+                <div class="min-w-0">
+                    <p class="text-sm font-medium truncate">{{ $message->name }}</p>
+                    <p class="text-xs opacity-60 truncate">{{ $message->talent_name ?? 'Consulta general' }} · {{ $message->email }}</p>
+                </div>
+                <span class="text-xs opacity-50 shrink-0 ml-3">{{ $message->created_at->diffForHumans() }}</span>
+            </a>
+        @empty
+            <p class="text-sm opacity-60">No hay mensajes pendientes en contacto inicial.</p>
+        @endforelse
+    </div>
+</div>
+
 {{-- Tarjetas de métricas principales --}}
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
@@ -165,13 +188,41 @@
 
 </div>
 
-{{-- Mapa de contactos por estado (SVG real, simplemaps.com) --}}
-<div class="card bg-base-100 border border-base-300 mt-4">
+{{-- Mapa de contactos por estado (SVG real, simplemaps.com) — solo desktop --}}
+<div class="card bg-base-100 border border-base-300 mt-4 hidden lg:block">
     <div class="card-body">
         <h3 class="font-semibold mb-1">Contactos de contratación por estado</h3>
         <p class="text-xs opacity-60 mb-3">El color indica el número de contactos recibidos. Pasa el mouse sobre un estado para ver el detalle y el artista más popular.</p>
 
         @include('admin.partials.mexico-map')
+    </div>
+</div>
+
+{{-- Lista de contactos por estado — solo móvil --}}
+<div class="card bg-base-100 border border-base-300 mt-4 lg:hidden">
+    <div class="card-body">
+        <h3 class="font-semibold mb-1">Contactos de contratación por estado</h3>
+        <p class="text-xs opacity-60 mb-3">Talento más popular por estado.</p>
+
+        <div class="divide-y divide-base-300">
+            @php
+                $sortedStates = collect($mexicoMapData)->sortByDesc('count');
+            @endphp
+
+            @forelse ($sortedStates as $state)
+                <div class="flex items-center justify-between py-2">
+                    <div class="min-w-0">
+                        <p class="text-sm font-medium truncate">{{ $state['name'] }}</p>
+                        <p class="text-xs opacity-60 truncate">{{ $state['topTalent'] }}</p>
+                    </div>
+                    <span class="badge {{ $state['count'] > 0 ? 'badge-primary' : 'badge-ghost' }} badge-sm shrink-0 ml-3">
+                        {{ $state['count'] }}
+                    </span>
+                </div>
+            @empty
+                <p class="text-sm opacity-60 py-2">Sin datos aún.</p>
+            @endforelse
+        </div>
     </div>
 </div>
 
