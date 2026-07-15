@@ -21,8 +21,6 @@ class UpdateContactExtraInfoRequest extends FormRequest
             'hora_presentacion' => ['nullable', 'date_format:H:i'],
             'formato_contratacion' => ['nullable', 'string', 'max:255'],
             'detalle_actividad' => ['nullable', 'string', 'max:3000'],
-            'requerimientos_operacion' => ['nullable', 'string', 'max:3000'],
-            'requerimientos_tecnicos' => ['nullable', 'string', 'max:3000'],
         ];
     }
 }

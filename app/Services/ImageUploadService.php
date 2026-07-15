@@ -87,4 +87,19 @@ class ImageUploadService
 
         return $path;
     }
+
+    public function storeMaxWidth(\Illuminate\Http\UploadedFile $file, string $directory, int $maxWidth = 600, int $quality = 85): string
+    {
+        $image = \Intervention\Image\Laravel\Facades\Image::decode($file)
+            ->scaleDown(width: $maxWidth);
+
+        $filename = \Illuminate\Support\Str::uuid() . '.webp';
+        $path = trim($directory, '/') . '/' . $filename;
+
+        $encoded = $image->encodeUsingFormat(\Intervention\Image\Format::WEBP, quality: $quality);
+
+        \Illuminate\Support\Facades\Storage::disk('public')->put($path, (string) $encoded);
+
+        return $path;
+    }
 }

@@ -56,6 +56,7 @@ class AdminContactMessageController extends Controller
         $data = $request->validated();
         $data['con_venta_boletos'] = $request->boolean('con_venta_boletos');
         $data['tiene_presupuesto'] = $request->has('tiene_presupuesto') ? $request->boolean('tiene_presupuesto') : null;
+        $data['enviar_cotizacion'] = $request->boolean('enviar_cotizacion');
 
         if ($data['type'] === 'contratacion' && empty($data['talent_name'])) {
             $talent = Talent::find($data['talent_id']);
@@ -81,6 +82,7 @@ class AdminContactMessageController extends Controller
     {
         $data = $request->validated();
         $data['tiene_presupuesto'] = $request->has('tiene_presupuesto') ? $request->boolean('tiene_presupuesto') : null;
+        $data['enviar_cotizacion'] = $request->boolean('enviar_cotizacion');
         $data['con_venta_boletos'] = $request->boolean('con_venta_boletos');
         $data['datos_contacto'] = $this->buildContacto($request);
 

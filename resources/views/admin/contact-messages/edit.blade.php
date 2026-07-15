@@ -174,9 +174,9 @@
                             </div>
                             <div class="form-control">
                                 <label class="label"><span class="label-text">Presupuesto aproximado (MXN)</span></label>
-                                <input type="number" step="0.01" min="0" name="presupuesto_aproximado"
+                                <input type="text" inputmode="decimal" name="presupuesto_aproximado"
                                        value="{{ old('presupuesto_aproximado', $contactMessage->presupuesto_aproximado) }}"
-                                       class="input input-bordered w-full" placeholder="0.00">
+                                       class="input input-bordered w-full thousands-input" placeholder="0.00">
                                 @error('presupuesto_aproximado') <p class="text-error text-xs mt-1">{{ $message }}</p> @enderror
                             </div>
                         </div>
@@ -307,10 +307,21 @@
                     </div>
 
                     <div class="form-control">
-                        <label class="label"><span class="label-text">Cotización final (MXN)</span></label>
-                        <input type="number" step="0.01" min="0" name="cotizacion_final"
+                        <label class="label cursor-pointer justify-start gap-3">
+                            <input type="checkbox" name="enviar_cotizacion" value="1" class="checkbox"
+                                @checked(old('enviar_cotizacion', $contactMessage->enviar_cotizacion))>
+                            <span class="label-text">¿Enviar cotización al cliente?</span>
+                        </label>
+                        @error('enviar_cotizacion')
+                            <p class="text-error text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">Ganancia final (MXN)</span></label>
+                        <input type="text" inputmode="decimal" name="cotizacion_final"
                                value="{{ old('cotizacion_final', $contactMessage->cotizacion_final) }}"
-                               class="input input-bordered w-full" placeholder="0.00">
+                               class="input input-bordered w-full thousands-input" placeholder="0.00">
                         <p class="text-xs opacity-60 mt-1">Este es el pago neto que recibe Capetillo Producciones por esta contratación (no necesariamente el precio mostrado al cliente).</p>
                         @error('cotizacion_final')
                             <p class="text-error text-xs mt-1">{{ $message }}</p>
@@ -415,6 +426,31 @@ const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || 
 const addTalentsUrl = '{{ route('admin.contact-messages.talents.store', $contactMessage) }}';
 const talentAjaxAlert = document.getElementById('talent-ajax-alert');
 
+function formatThousands(value) {
+    if (value === null || value === undefined) return '';
+    const cleaned = value.toString().replace(/,/g, '');
+    if (cleaned === '' || isNaN(cleaned)) return cleaned;
+
+    const parts = cleaned.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts.join('.');
+}
+
+// Formatea al cargar (form principal + talentos ya renderizados por el servidor)
+document.querySelectorAll('.thousands-input').forEach(input => {
+    input.value = formatThousands(input.value);
+});
+
+// Delegación: funciona también con filas de talentos insertadas dinámicamente vía AJAX
+document.addEventListener('input', (e) => {
+    if (!e.target.classList.contains('thousands-input')) return;
+
+    const input = e.target;
+    const cursorFromEnd = input.value.length - input.selectionStart;
+    input.value = formatThousands(input.value);
+    input.selectionStart = input.selectionEnd = input.value.length - cursorFromEnd;
+});
+
 function switchTab(tab) {
     document.getElementById('tab-general').classList.toggle('hidden', tab !== 'general');
     document.getElementById('tab-cotizacion').classList.toggle('hidden', tab !== 'cotizacion');
@@ -489,7 +525,9 @@ function showTalentAlert(message, isError = false) {
             const data = await response.json();
             if (! response.ok) throw new Error(data.message || 'Error al agregar talentos.');
 
-            document.getElementById('talents-list').innerHTML = data.html;
+            const tempContainer = document.createElement('div');
+            tempContainer.innerHTML = data.html;
+            document.getElementById('talents-list').replaceChildren(...tempContainer.childNodes);
             document.getElementById('talents-empty-msg').classList.add('hidden');
             bindTalentFormEvents();
 
@@ -510,6 +548,9 @@ function bindTalentFormEvents() {
             e.preventDefault();
             const formData = new FormData(form);
             const payload = Object.fromEntries(formData.entries());
+            if (payload.honorarios) {
+                payload.honorarios = payload.honorarios.replace(/,/g, '');
+            }
 
             try {
                 const response = await fetch(form.action, {
@@ -564,6 +605,13 @@ function bindTalentFormEvents() {
 }
 
 bindTalentFormEvents();
+
+document.querySelector('form[action="{{ route('admin.contact-messages.update', $contactMessage) }}"]')
+    ?.addEventListener('submit', () => {
+        document.querySelectorAll('.thousands-input').forEach(input => {
+            input.value = input.value.replace(/,/g, '');
+        });
+    });
 </script>
 
 @endsection

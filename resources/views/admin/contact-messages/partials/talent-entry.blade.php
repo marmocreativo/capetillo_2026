@@ -14,7 +14,7 @@
             </div>
             <div class="form-control">
                 <label class="label"><span class="label-text text-xs">Honorarios (MXN)</span></label>
-                <input type="number" step="0.01" min="0" name="honorarios" value="{{ $entry->honorarios }}" class="input input-bordered input-sm w-full">
+                <input type="text" inputmode="decimal" name="honorarios" value="{{ $entry->honorarios }}" class="input input-bordered input-sm w-full thousands-input">
             </div>
             <div class="form-control sm:col-span-2">
                 <label class="label"><span class="label-text text-xs">Incluye</span></label>

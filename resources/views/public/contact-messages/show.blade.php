@@ -187,29 +187,7 @@
                                 </div>
                             @endif
 
-                            {{-- REQUERIMIENTOS --}}
-                            @if ($contactMessage->requerimientos_operacion || $contactMessage->requerimientos_tecnicos)
-                                <div class="border border-base-content/10 rounded-box overflow-hidden">
-                                    <div class="bg-primary/10 border-b border-primary/20 px-5 py-2.5">
-                                        <h3 class="text-xs font-bold uppercase tracking-widest text-primary">Requerimientos</h3>
-                                    </div>
-                                    <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                        @if ($contactMessage->requerimientos_tecnicos)
-                                            <div>
-                                                <p class="text-xs uppercase tracking-wide font-semibold text-primary mb-1">Técnico</p>
-                                                <p class="text-sm leading-relaxed whitespace-pre-line opacity-90">{{ $contactMessage->requerimientos_tecnicos }}</p>
-                                            </div>
-                                        @endif
-                                        @if ($contactMessage->requerimientos_operacion)
-                                            <div>
-                                                <p class="text-xs uppercase tracking-wide font-semibold text-primary mb-1">Operación</p>
-                                                <p class="text-sm leading-relaxed whitespace-pre-line opacity-90">{{ $contactMessage->requerimientos_operacion }}</p>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endif
-
+                            
                             {{-- CIERRE: notas, vigencia, datos de contacto --}}
                             @if ($contactMessage->notas || !empty($contactMessage->datos_contacto))
                                 <div class="border border-base-content/10 rounded-box overflow-hidden">
@@ -372,26 +350,6 @@
                                 </div>
                             @endif
 
-                            @if ($contactMessage->requerimientos_operacion || $contactMessage->requerimientos_tecnicos)
-                                <div class="border border-base-content/10 rounded-box overflow-hidden">
-                                    <div class="bg-primary/10 border-b border-primary/20 px-5 py-2.5">
-                                        <h3 class="text-xs font-bold uppercase tracking-widest text-primary">Requerimientos</h3>
-                                    </div>
-                                    <div class="p-5">
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                            <div>
-                                                <p class="text-xs uppercase tracking-wide opacity-50 mb-1">Requerimientos de operación</p>
-                                                <p class="text-sm leading-relaxed whitespace-pre-line">{{ $contactMessage->requerimientos_operacion ?: '—' }}</p>
-                                            </div>
-                                            <div>
-                                                <p class="text-xs uppercase tracking-wide opacity-50 mb-1">Requerimientos técnicos</p>
-                                                <p class="text-sm leading-relaxed whitespace-pre-line">{{ $contactMessage->requerimientos_tecnicos ?: '—' }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-
                             <div class="alert bg-primary/10 border border-primary/30 text-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -455,19 +413,6 @@
                                             <label class="label"><span class="label-text">Detalle de la actividad</span></label>
                                             <textarea name="detalle_actividad" rows="3" class="textarea textarea-bordered w-full">{{ old('detalle_actividad') }}</textarea>
                                             @error('detalle_actividad') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
-                                        </div>
-
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <div class="form-control">
-                                                <label class="label"><span class="label-text">Requerimientos de operación</span></label>
-                                                <textarea name="requerimientos_operacion" rows="3" class="textarea textarea-bordered w-full">{{ old('requerimientos_operacion') }}</textarea>
-                                                @error('requerimientos_operacion') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
-                                            </div>
-                                            <div class="form-control">
-                                                <label class="label"><span class="label-text">Requerimientos técnicos</span></label>
-                                                <textarea name="requerimientos_tecnicos" rows="3" class="textarea textarea-bordered w-full">{{ old('requerimientos_tecnicos') }}</textarea>
-                                                @error('requerimientos_tecnicos') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
-                                            </div>
                                         </div>
 
                                         <div class="pt-2">

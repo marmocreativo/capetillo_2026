@@ -122,7 +122,9 @@
 
                         <div class="form-control">
                             <label class="label"><span class="label-text">Honorarios (default)</span></label>
-                            <input type="number" name="honorarios_default" value="{{ old('honorarios_default', $talent->honorarios_default ?? '') }}" class="input input-bordered w-full" min="0" step="0.01">
+                            <input type="text" inputmode="decimal" name="honorarios_default" id="honorarios-default-field"
+                                value="{{ old('honorarios_default', $talent->honorarios_default ?? '') }}"
+                                class="input input-bordered w-full" placeholder="0.00">
                         </div>
 
                         <div class="divider my-0"></div>
@@ -227,6 +229,78 @@
 
     </div>
 
+    {{-- TAB 4: Capetillo Network --}}
+    <input type="radio" name="talent-tabs" role="tab" class="tab" aria-label="Network">
+    <div role="tabpanel" class="tab-content bg-base-100 border-base-300 p-6">
+
+        <div class="flex flex-col gap-4">
+
+            <label class="label cursor-pointer justify-start gap-2">
+                <input type="checkbox" name="mostrar_network" value="1" class="checkbox"
+                    {{ old('mostrar_network', $talent->mostrar_network ?? false) ? 'checked' : '' }}>
+                <span class="label-text">Mostrar este talento en Capetillo Network</span>
+            </label>
+
+            <div class="form-control">
+                <label class="label"><span class="label-text">Marcas / productos recomendados</span></label>
+                <div id="network-repeater" class="flex flex-col gap-2">
+                    @php $existingNetwork = old('recomendaciones_network', $talent->recomendaciones_network ?? []); @endphp
+                    @forelse ($existingNetwork as $item)
+                        <div class="flex gap-2">
+                            <input type="text" name="recomendaciones_network[]" value="{{ $item }}" class="input input-bordered input-sm w-full" placeholder="Ej. Bebidas energéticas, ropa deportiva...">
+                            <button type="button" class="btn btn-sm btn-error btn-outline remove-row">✕</button>
+                        </div>
+                    @empty
+                        <div class="flex gap-2">
+                            <input type="text" name="recomendaciones_network[]" value="" class="input input-bordered input-sm w-full" placeholder="Ej. Bebidas energéticas, ropa deportiva...">
+                            <button type="button" class="btn btn-sm btn-error btn-outline remove-row">✕</button>
+                        </div>
+                    @endforelse
+                </div>
+                <button type="button" id="add-network-item" class="btn btn-xs btn-outline mt-2">+ Agregar recomendación</button>
+                <p class="text-xs opacity-60 mt-1">Marcas o tipos de producto que le vendría bien anunciar a este talento.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    {{-- TAB 5: Golden Party --}}
+    <input type="radio" name="talent-tabs" role="tab" class="tab" aria-label="Party">
+    <div role="tabpanel" class="tab-content bg-base-100 border-base-300 p-6">
+
+        <div class="flex flex-col gap-4">
+
+            <label class="label cursor-pointer justify-start gap-2">
+                <input type="checkbox" name="mostrar_party" value="1" class="checkbox"
+                    {{ old('mostrar_party', $talent->mostrar_party ?? false) ? 'checked' : '' }}>
+                <span class="label-text">Mostrar este talento en Golden Party</span>
+            </label>
+
+            <div class="form-control">
+                <label class="label"><span class="label-text">Tipos de evento recomendados</span></label>
+                <div id="party-repeater" class="flex flex-col gap-2">
+                    @php $existingParty = old('recomendaciones_party', $talent->recomendaciones_party ?? []); @endphp
+                    @forelse ($existingParty as $item)
+                        <div class="flex gap-2">
+                            <input type="text" name="recomendaciones_party[]" value="{{ $item }}" class="input input-bordered input-sm w-full" placeholder="Ej. Bodas, XV años, posadas...">
+                            <button type="button" class="btn btn-sm btn-error btn-outline remove-row">✕</button>
+                        </div>
+                    @empty
+                        <div class="flex gap-2">
+                            <input type="text" name="recomendaciones_party[]" value="" class="input input-bordered input-sm w-full" placeholder="Ej. Bodas, XV años, posadas...">
+                            <button type="button" class="btn btn-sm btn-error btn-outline remove-row">✕</button>
+                        </div>
+                    @endforelse
+                </div>
+                <button type="button" id="add-party-item" class="btn btn-xs btn-outline mt-2">+ Agregar tipo de evento</button>
+                <p class="text-xs opacity-60 mt-1">Tipos de evento en donde una aparición personal de este talento sería relevante.</p>
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
 <div class="mt-6 flex flex-col sm:flex-row gap-2">
@@ -235,6 +309,39 @@
 </div>
 
 <script>
+function formatThousands(value) {
+    if (value === null || value === undefined) return '';
+    const cleaned = value.toString().replace(/,/g, '');
+    if (cleaned === '' || isNaN(cleaned)) return cleaned;
+
+    const parts = cleaned.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts.join('.');
+}
+
+function setupThousandsInput(id) {
+    const input = document.getElementById(id);
+    if (!input) return;
+
+    // Formatea el valor inicial (al cargar la página, ej. en edición)
+    input.value = formatThousands(input.value);
+
+    input.addEventListener('input', () => {
+        const cursorFromEnd = input.value.length - input.selectionStart;
+        input.value = formatThousands(input.value);
+        input.selectionStart = input.selectionEnd = input.value.length - cursorFromEnd;
+    });
+
+    // Antes de enviar el formulario, quita las comas para que el backend reciba un número plano
+    input.closest('form')?.addEventListener('submit', () => {
+        input.value = input.value.replace(/,/g, '');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setupThousandsInput('honorarios-default-field');
+});
+
 function previewCoverImage(event) {
     const preview = document.getElementById('cover-preview');
     const file = event.target.files[0];
@@ -397,6 +504,14 @@ document.getElementById('add-highlight')?.addEventListener('click', () => {
 
 document.getElementById('add-video')?.addEventListener('click', () => {
     addRepeaterRow('videos-repeater', 'videos[]', 'https://youtube.com/watch?v=...');
+});
+
+document.getElementById('add-network-item')?.addEventListener('click', () => {
+    addRepeaterRow('network-repeater', 'recomendaciones_network[]', 'Ej. Bebidas energéticas, ropa deportiva...');
+});
+
+document.getElementById('add-party-item')?.addEventListener('click', () => {
+    addRepeaterRow('party-repeater', 'recomendaciones_party[]', 'Ej. Bodas, XV años, posadas...');
 });
 
 document.addEventListener('click', (e) => {

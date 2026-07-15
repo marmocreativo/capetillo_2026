@@ -27,12 +27,20 @@ class Talent extends Model
         'is_active',
         'orden',
         'destacado',
+        'mostrar_network',
+        'recomendaciones_network',
+        'mostrar_party',
+        'recomendaciones_party',
         'honorarios_default',
     ];
 
     protected $casts = [
         'highlights' => 'array',
         'destacado' => 'boolean',
+        'mostrar_network' => 'boolean',
+        'recomendaciones_network' => 'array',
+        'mostrar_party' => 'boolean',
+        'recomendaciones_party' => 'array',
         'honorarios_default' => 'decimal:2',
     ];
 

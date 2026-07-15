@@ -56,6 +56,7 @@ class UpdateContactMessageRequest extends FormRequest
             'detalle_actividad' => ['nullable', 'string', 'max:3000'],
             'requerimientos_operacion' => ['nullable', 'string', 'max:3000'],
             'requerimientos_tecnicos' => ['nullable', 'string', 'max:3000'],
+            'enviar_cotizacion' => ['nullable', 'boolean'],
         ];
     }
 }

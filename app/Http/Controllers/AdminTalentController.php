@@ -67,6 +67,10 @@ class AdminTalentController extends Controller
         $data['destacado'] = $request->boolean('destacado');
         $data['orden'] = $data['orden'] ?? ((int) Talent::max('orden') + 1);
         $data['highlights'] = array_values(array_filter($request->input('highlights', [])));
+        $data['mostrar_network'] = $request->boolean('mostrar_network');
+        $data['mostrar_party'] = $request->boolean('mostrar_party');
+        $data['recomendaciones_network'] = array_values(array_filter($request->input('recomendaciones_network', [])));
+        $data['recomendaciones_party'] = array_values(array_filter($request->input('recomendaciones_party', [])));
 
         if ($request->hasFile('cover_image')) {
             $data['cover_image'] = $this->imageUploadService->store($request->file('cover_image'), 'talents');
@@ -89,6 +93,10 @@ class AdminTalentController extends Controller
         $data['destacado'] = $request->boolean('destacado');
         $data['orden'] = $data['orden'] ?? $talent->orden;
         $data['highlights'] = array_values(array_filter($request->input('highlights', [])));
+        $data['mostrar_network'] = $request->boolean('mostrar_network');
+        $data['mostrar_party'] = $request->boolean('mostrar_party');
+        $data['recomendaciones_network'] = array_values(array_filter($request->input('recomendaciones_network', [])));
+        $data['recomendaciones_party'] = array_values(array_filter($request->input('recomendaciones_party', [])));
 
         if ($request->hasFile('cover_image')) {
             if ($talent->cover_image) {

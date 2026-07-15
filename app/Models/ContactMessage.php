@@ -39,6 +39,7 @@ class ContactMessage extends Model
         'requerimientos_tecnicos',
         'cotizacion_final',
         'status',
+        'enviar_cotizacion',
         'extra_info_completed_at',
         'notas',
         'fecha_vigencia',
@@ -58,6 +59,7 @@ class ContactMessage extends Model
         'extra_info_completed_at' => 'datetime',
         'fecha_vigencia' => 'date',
         'datos_contacto' => 'array',
+        'enviar_cotizacion' => 'boolean',
     ];
 
     protected static function booted(): void

@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Roster;
 use App\Models\RosterTalent;
 use App\Models\Talent;
+use App\Models\LogoRoster;
 
 class AdminRosterController extends Controller
 {
@@ -27,8 +28,9 @@ class AdminRosterController extends Controller
     {
         $talents = Talent::with('categories')->orderBy('name')->get();
         $categories = Category::orderBy('name')->get();
+        $logosRoster = LogoRoster::orderByDesc('id')->get();
 
-        return view('admin.rosters.create', compact('talents', 'categories'));
+        return view('admin.rosters.create', compact('talents', 'categories', 'logosRoster'));
     }
 
     public function store(StoreRosterRequest $request)
@@ -37,9 +39,9 @@ class AdminRosterController extends Controller
         $data['separar_por_categoria'] = $request->boolean('separar_por_categoria');
         $data['mostrar_honorarios'] = $request->boolean('mostrar_honorarios');
         $data['datos_contacto'] = $this->buildContacto($request);
-        $data['logos'] = $this->storeNewLogos($request, []);
+        $data['logos'] = $request->input('selected_logos', []);
 
-        $roster = Roster::create(collect($data)->except(['new_logos', 'delete_logos', 'talents', 'contacto_tipo', 'contacto_valor'])->toArray());
+        $roster = Roster::create(collect($data)->except(['selected_logos', 'talents', 'contacto_tipo', 'contacto_valor'])->toArray());
 
         $this->syncTalents($request, $roster);
 
@@ -50,9 +52,10 @@ class AdminRosterController extends Controller
     {
         $talents = Talent::with('categories')->orderBy('name')->get();
         $categories = Category::orderBy('name')->get();
+        $logosRoster = LogoRoster::orderByDesc('id')->get();
         $roster->load('rosterTalents.talent');
 
-        return view('admin.rosters.edit', compact('roster', 'talents', 'categories'));
+        return view('admin.rosters.edit', compact('roster', 'talents', 'categories', 'logosRoster'));
     }
 
     public function update(StoreRosterRequest $request, Roster $roster)
@@ -61,18 +64,9 @@ class AdminRosterController extends Controller
         $data['separar_por_categoria'] = $request->boolean('separar_por_categoria');
         $data['mostrar_honorarios'] = $request->boolean('mostrar_honorarios');
         $data['datos_contacto'] = $this->buildContacto($request);
+        $data['logos'] = $request->input('selected_logos', []);
 
-        $currentLogos = $roster->logos ?? [];
-        $deleteLogos = $request->input('delete_logos', []);
-        $remainingLogos = array_values(array_diff($currentLogos, $deleteLogos));
-
-        foreach ($deleteLogos as $logoPath) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($logoPath);
-        }
-
-        $data['logos'] = $this->storeNewLogos($request, $remainingLogos);
-
-        $roster->update(collect($data)->except(['new_logos', 'delete_logos', 'talents', 'contacto_tipo', 'contacto_valor'])->toArray());
+        $roster->update(collect($data)->except(['selected_logos', 'talents', 'contacto_tipo', 'contacto_valor'])->toArray());
 
         $this->syncTalents($request, $roster);
 
@@ -86,18 +80,6 @@ class AdminRosterController extends Controller
         return redirect()->route('admin.rosters.index')->with('status', 'Roster eliminado correctamente.');
     }
 
-    protected function storeNewLogos(\Illuminate\Http\Request $request, array $existingLogos): array
-    {
-        if (! $request->hasFile('new_logos')) {
-            return $existingLogos;
-        }
-
-        foreach ($request->file('new_logos') as $file) {
-            $existingLogos[] = $this->imageUploadService->storeLogo($file, 'rosters/logos');
-        }
-
-        return $existingLogos;
-    }
 
     protected function buildContacto(\Illuminate\Http\Request $request): array
     {

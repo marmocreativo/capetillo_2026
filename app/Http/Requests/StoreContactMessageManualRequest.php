@@ -36,6 +36,7 @@ class StoreContactMessageManualRequest extends FormRequest
                 'contacto_inicial', 'procesando', 'venta_no_concluida',
                 'cotizacion_completa', 'contrato_cerrado', 'contrato_pagado',
             ])],
+            'enviar_cotizacion' => ['nullable', 'boolean'],
         ];
     }
 }

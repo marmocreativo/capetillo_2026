@@ -104,8 +104,9 @@
                 </thead>
                 <tbody>
                     @forelse ($messages as $message)
-                        <tr>
-                            <td>
+                        <tr class="hover:bg-base-200 cursor-pointer"
+                            onclick="window.location='{{ route('admin.contact-messages.edit', $message) }}'">
+                            <td onclick="event.stopPropagation()">
                                 <input type="checkbox" class="checkbox checkbox-sm" value="{{ $message->id }}" x-model="selected">
                             </td>
                             <td class="text-xs whitespace-nowrap">{{ $message->created_at->format('d/m/Y H:i') }}</td>
@@ -150,7 +151,7 @@
                             <td class="text-xs">
                                 {{ $message->cotizacion_final ? '$' . number_format($message->cotizacion_final, 2) : '—' }}
                             </td>
-                            <td class="text-right whitespace-nowrap">
+                            new_str:                             <td class="text-right whitespace-nowrap" onclick="event.stopPropagation()">
                                 <a href="{{ route('admin.contact-messages.edit', $message) }}" class="btn btn-xs">Ver / Editar</a>
                                 <button type="button" class="btn btn-xs btn-error btn-outline"
                                         @click="if (confirm('¿Eliminar este mensaje? Esta acción no se puede deshacer.')) submitDelete([{{ $message->id }}])">
@@ -187,9 +188,10 @@
                         'contrato_pagado' => 'Contrato pagado',
                     ];
                 @endphp
-                <div class="p-4 flex flex-col gap-2">
+                <div class="p-4 flex flex-col gap-2 cursor-pointer active:bg-base-200"
+                     onclick="window.location='{{ route('admin.contact-messages.edit', $message) }}'">
                     <div class="flex items-start justify-between gap-2">
-                        <div class="flex items-center gap-2 min-w-0">
+                        <div class="flex items-center gap-2 min-w-0" onclick="event.stopPropagation()">
                             <input type="checkbox" class="checkbox checkbox-sm shrink-0" value="{{ $message->id }}" x-model="selected">
                             <div class="min-w-0">
                                 <p class="font-medium truncate">{{ $message->name }}</p>
@@ -223,7 +225,7 @@
                         </div>
                     @endif
 
-                    <div class="flex items-center gap-2 mt-1">
+                    <div class="flex items-center gap-2 mt-1" onclick="event.stopPropagation()">
                         <a href="{{ route('admin.contact-messages.edit', $message) }}" class="btn btn-xs flex-1">Ver / Editar</a>
                         <button type="button" class="btn btn-xs btn-error btn-outline"
                                 @click="if (confirm('¿Eliminar este mensaje? Esta acción no se puede deshacer.')) submitDelete([{{ $message->id }}])">

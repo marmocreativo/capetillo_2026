@@ -124,24 +124,30 @@
                 <div class="divider my-0"></div>
 
                 <div class="form-control">
-                    <label class="label"><span class="label-text">Logos (PNG)</span></label>
+                    <label class="label"><span class="label-text">Logos</span></label>
 
-                    @if (isset($roster) && ! empty($roster->logos))
-                        <div class="grid grid-cols-3 gap-2 mb-2">
-                            @foreach ($roster->logos as $logo)
-                                <div class="relative">
-                                    <img src="{{ Storage::url($logo) }}" class="w-full aspect-square object-contain bg-base-200 rounded">
-                                    <label class="absolute top-1 right-1 bg-base-100/90 rounded px-1 text-xs flex items-center gap-1 cursor-pointer">
-                                        <input type="checkbox" name="delete_logos[]" value="{{ $logo }}" class="checkbox checkbox-xs checkbox-error">
-                                        Eliminar
-                                    </label>
-                                </div>
+                    @php $selectedLogos = old('selected_logos', $roster->logos ?? []); @endphp
+
+                    @if ($logosRoster->isEmpty())
+                        <p class="text-xs opacity-60">
+                            No hay logos disponibles. Súbelos primero desde
+                            <a href="{{ route('admin.logos-roster.index') }}" target="_blank" class="link link-primary">Logos roster</a>.
+                        </p>
+                    @else
+                        <div class="grid grid-cols-3 gap-2 p-3 border border-base-300 rounded-box max-h-72 overflow-y-auto">
+                            @foreach ($logosRoster as $logo)
+                                <label class="relative cursor-pointer">
+                                    <input type="checkbox" name="selected_logos[]" value="{{ $logo->image }}" class="checkbox checkbox-xs checkbox-primary absolute top-1 right-1 bg-base-100/90"
+                                        {{ in_array($logo->image, $selectedLogos) ? 'checked' : '' }}>
+                                    <img src="{{ Storage::url($logo->image) }}" class="w-full aspect-square object-contain bg-base-200 rounded">
+                                </label>
                             @endforeach
                         </div>
+                        <p class="text-xs opacity-60 mt-1">
+                            Selecciona los logos a usar en este roster. ¿Falta alguno?
+                            <a href="{{ route('admin.logos-roster.index') }}" target="_blank" class="link link-primary">Súbelo aquí</a>.
+                        </p>
                     @endif
-
-                    <input type="file" name="new_logos[]" accept="image/png" multiple class="file-input file-input-bordered w-full">
-                    <p class="text-xs opacity-60 mt-1">Solo PNG. Se conserva el tamaño original.</p>
                 </div>
 
             </div>

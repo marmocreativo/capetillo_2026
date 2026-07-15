@@ -13,6 +13,10 @@ class AdminContactMessageExportController extends Controller
 
         $filename = 'cotizacion-' . str_pad($contactMessage->id, 5, '0', STR_PAD_LEFT) . '.pptx';
 
-        return response()->download($path, $filename)->deleteFileAfterSend(true);
+        return response()->download($path, $filename, [
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ])->deleteFileAfterSend(true);
     }
 }

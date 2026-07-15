@@ -142,6 +142,14 @@
                     @error('status') <p class="text-error text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
+                <div class="form-control mt-3">
+                    <label class="label cursor-pointer justify-start gap-3">
+                        <input type="checkbox" name="enviar_cotizacion" value="1" class="checkbox" @checked(old('enviar_cotizacion'))>
+                        <span class="label-text">¿Enviar cotización al cliente?</span>
+                    </label>
+                    @error('enviar_cotizacion') <p class="text-error text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
                 <p class="text-xs opacity-60 mt-3">
                     Después de crear la cotización podrás agregar talentos, precios, requerimientos y notas desde la pantalla de edición.
                 </p>

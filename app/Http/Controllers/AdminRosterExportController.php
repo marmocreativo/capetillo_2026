@@ -13,6 +13,10 @@ class AdminRosterExportController extends Controller
 
         $filename = \Illuminate\Support\Str::slug($roster->name) . '.pptx';
 
-        return response()->download($path, $filename)->deleteFileAfterSend(true);
+        return response()->download($path, $filename, [
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ])->deleteFileAfterSend(true);
     }
 }

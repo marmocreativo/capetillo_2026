@@ -85,6 +85,10 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
     Route::resource('users', \App\Http\Controllers\AdminUserController::class);
 
+    Route::resource('logos-roster', \App\Http\Controllers\AdminLogoRosterController::class)
+        ->only(['index', 'store', 'destroy'])
+        ->parameters(['logos-roster' => 'logosRoster']);
+
     Route::get('settings', [\App\Http\Controllers\AdminSettingsController::class, 'index'])->name('settings.index');
     Route::post('settings/run-command', [\App\Http\Controllers\AdminSettingsController::class, 'runCommand'])->name('settings.run-command');
 });
