@@ -35,6 +35,7 @@
                     <option value="">Todos</option>
                     <option value="contacto_inicial" @selected(request('status') === 'contacto_inicial')>Contacto inicial</option>
                     <option value="procesando" @selected(request('status') === 'procesando')>Procesando</option>
+                    <option value="en_espera_cotizacion" @selected(request('status') === 'en_espera_cotizacion')>En espera de cotización</option>
                     <option value="venta_no_concluida" @selected(request('status') === 'venta_no_concluida')>Venta no concluida</option>
                     <option value="cotizacion_completa" @selected(request('status') === 'cotizacion_completa')>Cotización completa</option>
                     <option value="contrato_cerrado" @selected(request('status') === 'contrato_cerrado')>Contrato cerrado</option>
@@ -130,6 +131,7 @@
                                     $statusColors = [
                                         'contacto_inicial' => 'badge-info',
                                         'procesando' => 'badge-warning',
+                                        'en_espera_cotizacion' => 'badge-warning',
                                         'venta_no_concluida' => 'badge-error',
                                         'cotizacion_completa' => 'badge-accent',
                                         'contrato_cerrado' => 'badge-success',
@@ -138,6 +140,7 @@
                                     $statusLabels = [
                                         'contacto_inicial' => 'Contacto inicial',
                                         'procesando' => 'Procesando',
+                                        'en_espera_cotizacion' => 'En espera de cotización',
                                         'venta_no_concluida' => 'Venta no concluida',
                                         'cotizacion_completa' => 'Cotización completa',
                                         'contrato_cerrado' => 'Contrato cerrado',
@@ -151,7 +154,7 @@
                             <td class="text-xs">
                                 {{ $message->cotizacion_final ? '$' . number_format($message->cotizacion_final, 2) : '—' }}
                             </td>
-                            new_str:                             <td class="text-right whitespace-nowrap" onclick="event.stopPropagation()">
+                            <td class="text-right whitespace-nowrap" onclick="event.stopPropagation()">
                                 <a href="{{ route('admin.contact-messages.edit', $message) }}" class="btn btn-xs">Ver / Editar</a>
                                 <button type="button" class="btn btn-xs btn-error btn-outline"
                                         @click="if (confirm('¿Eliminar este mensaje? Esta acción no se puede deshacer.')) submitDelete([{{ $message->id }}])">

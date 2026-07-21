@@ -296,6 +296,7 @@
                         <select name="status" class="select select-bordered w-full">
                             <option value="contacto_inicial" @selected($contactMessage->status === 'contacto_inicial')>Contacto inicial</option>
                             <option value="procesando" @selected($contactMessage->status === 'procesando')>Procesando</option>
+                            <option value="en_espera_cotizacion" @selected($contactMessage->status === 'en_espera_cotizacion')>En espera de cotización</option>
                             <option value="venta_no_concluida" @selected($contactMessage->status === 'venta_no_concluida')>Venta no concluida</option>
                             <option value="cotizacion_completa" @selected($contactMessage->status === 'cotizacion_completa')>Cotización completa</option>
                             <option value="contrato_cerrado" @selected($contactMessage->status === 'contrato_cerrado')>Contrato cerrado</option>

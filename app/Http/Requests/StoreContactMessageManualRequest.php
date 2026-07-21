@@ -33,7 +33,7 @@ class StoreContactMessageManualRequest extends FormRequest
             'tiene_presupuesto' => ['nullable', 'boolean'],
             'presupuesto_aproximado' => ['nullable', 'numeric', 'min:0', 'max:99999999.99'],
             'status' => ['required', Rule::in([
-                'contacto_inicial', 'procesando', 'venta_no_concluida',
+                'contacto_inicial', 'procesando', 'en_espera_cotizacion', 'venta_no_concluida',
                 'cotizacion_completa', 'contrato_cerrado', 'contrato_pagado',
             ])],
             'enviar_cotizacion' => ['nullable', 'boolean'],

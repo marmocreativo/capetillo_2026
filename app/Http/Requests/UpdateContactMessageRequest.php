@@ -18,6 +18,7 @@ class UpdateContactMessageRequest extends FormRequest
             'status' => ['required', Rule::in([
                 'contacto_inicial',
                 'procesando',
+                'en_espera_cotizacion',
                 'venta_no_concluida',
                 'cotizacion_completa',
                 'contrato_cerrado',

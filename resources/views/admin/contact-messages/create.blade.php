@@ -134,6 +134,7 @@
                     <select name="status" class="select select-bordered w-full">
                         <option value="contacto_inicial" @selected(old('status', 'contacto_inicial') === 'contacto_inicial')>Contacto inicial</option>
                         <option value="procesando" @selected(old('status') === 'procesando')>Procesando</option>
+                        <option value="en_espera_cotizacion" @selected(old('status') === 'en_espera_cotizacion')>En espera de cotización</option>
                         <option value="venta_no_concluida" @selected(old('status') === 'venta_no_concluida')>Venta no concluida</option>
                         <option value="cotizacion_completa" @selected(old('status') === 'cotizacion_completa')>Cotización completa</option>
                         <option value="contrato_cerrado" @selected(old('status') === 'contrato_cerrado')>Contrato cerrado</option>

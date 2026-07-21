@@ -100,11 +100,27 @@ class AdminDashboardController extends Controller
             ];
         }
 
-        // Últimos mensajes en contacto inicial
-        $recentInitialMessages = ContactMessage::where('status', 'contacto_inicial')
+        // Últimos mensajes en espera de cotización
+        $recentInitialMessages = ContactMessage::where('status', 'en_espera_cotizacion')
             ->latest()
             ->take(5)
             ->get();
+
+        // Mensajes recibidos por día durante el último mes
+        $messagesPerDay = ContactMessage::where('created_at', '>=', now()->subDays(29)->startOfDay())
+            ->select(DB::raw('DATE(created_at) as fecha'), DB::raw('count(*) as total'))
+            ->groupBy('fecha')
+            ->pluck('total', 'fecha');
+
+        $dailyMessages = collect(range(29, 0))->map(function ($daysAgo) use ($messagesPerDay) {
+            $date = now()->subDays($daysAgo);
+            $key = $date->format('Y-m-d');
+
+            return [
+                'label' => $date->format('d/m'),
+                'total' => (int) ($messagesPerDay[$key] ?? 0),
+            ];
+        });
 
         return view('admin.dashboard', compact(
             'totalTalents',
@@ -122,7 +138,8 @@ class AdminDashboardController extends Controller
             'contactsByState',
             'topTalentByState',
             'mexicoMapData',
-            'recentInitialMessages'
+            'recentInitialMessages',
+            'dailyMessages'
         ));
     }
 }

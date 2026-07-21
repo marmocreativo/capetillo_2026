@@ -25,6 +25,7 @@ class StoreContactMessageRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:30'],
             'message' => ['required', 'string', 'max:2000'],
             'estado_republica' => [$isContratacion ? 'required' : 'nullable', 'string', 'max:255'],
+            'fecha_evento' => ['nullable', 'date', 'after_or_equal:today'],
             'aforo_esperado' => ['nullable', 'integer', 'min:1'],
             'venue' => ['nullable', 'string', 'max:255'],
             'ciudad' => ['nullable', 'string', 'max:255'],

@@ -231,6 +231,25 @@
                         <input type="tel" name="phone" class="input input-bordered w-full">
                     </div>
 
+                    <div class="divider my-1"></div>
+
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">Tipo de evento</span></label>
+                        <select name="tipo_evento" class="select select-bordered w-full">
+                            <option value="" disabled selected>Selecciona una opción</option>
+                            <option value="privado">Privado</option>
+                            <option value="corporativo">Corporativo</option>
+                            <option value="publico_masivo">Público / Masivo</option>
+                            <option value="social">Social (boda / XV)</option>
+                            <option value="gubernamental">Gubernamental</option>
+                        </select>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">Fecha del evento (tentativa)</span></label>
+                        <input type="date" name="fecha_evento" class="input input-bordered w-full" min="{{ now()->format('Y-m-d') }}">
+                    </div>
+
                     <div class="grid grid-cols-2 gap-3">
                         <div class="form-control">
                             <label class="label"><span class="label-text">Estado de la rep.</span></label>
@@ -259,21 +278,9 @@
                     </div>
 
                     <div class="form-control">
-                        <label class="label"><span class="label-text">Tipo de evento</span></label>
-                        <select name="tipo_evento" class="select select-bordered w-full">
-                            <option value="" disabled selected>Selecciona una opción</option>
-                            <option value="privado">Privado</option>
-                            <option value="corporativo">Corporativo</option>
-                            <option value="publico_masivo">Público / Masivo</option>
-                            <option value="social">Social (boda / XV)</option>
-                            <option value="gubernamental">Gubernamental</option>
-                        </select>
-                    </div>
-
-                    <div class="form-control">
                         <label class="label cursor-pointer justify-start gap-2">
                             <input type="checkbox" name="con_venta_boletos" value="1" class="checkbox checkbox-sm">
-                            <span class="label-text">Con venta de boletos</span>
+                            <span class="label-text">¿Venderás boletos?</span>
                         </label>
                     </div>
 
@@ -293,7 +300,8 @@
 
                     <div class="form-control" id="presupuesto-aproximado-wrapper" style="display:none;">
                         <label class="label"><span class="label-text">Presupuesto aproximado (MXN)</span></label>
-                        <input type="number" min="0" step="0.01" name="presupuesto_aproximado" class="input input-bordered w-full" placeholder="Opcional">
+                        <input type="text" inputmode="numeric" name="presupuesto_aproximado_display" id="presupuesto_aproximado_display" class="input input-bordered w-full" placeholder="Opcional">
+                        <input type="hidden" name="presupuesto_aproximado" id="presupuesto_aproximado">
                     </div>
 
                     <div class="form-control">
@@ -302,7 +310,7 @@
                     </div>
 
                     <div class="modal-action flex-col sm:flex-row gap-2">
-                        <button type="submit" class="btn btn-primary flex-1">Enviar por correo</button>
+                        <button type="submit" class="btn btn-primary flex-1 p-4">Enviar mensaje</button>
                     </div>
                 </form>
             </div>
@@ -355,9 +363,26 @@
     presupuestoSi.addEventListener('change', togglePresupuestoWrapper);
     presupuestoNo.addEventListener('change', togglePresupuestoWrapper);
 
+    // Formateo con comas de millares para presupuesto aproximado
+    const presupuestoDisplay = document.getElementById('presupuesto_aproximado_display');
+    const presupuestoHidden = document.getElementById('presupuesto_aproximado');
+
+    presupuestoDisplay.addEventListener('input', () => {
+        let raw = presupuestoDisplay.value.replace(/[^0-9.]/g, '');
+        const parts = raw.split('.');
+        if (parts.length > 2) raw = parts[0] + '.' + parts.slice(1).join('');
+
+        presupuestoHidden.value = raw;
+
+        const [intPart, decPart] = raw.split('.');
+        const formattedInt = intPart ? Number(intPart).toLocaleString('en-US') : '';
+        presupuestoDisplay.value = decPart !== undefined ? `${formattedInt}.${decPart}` : formattedInt;
+    });
+
     contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(contactForm);
+        formData.delete('presupuesto_aproximado_display');
         const submitBtn = contactForm.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
         submitBtn.textContent = 'Enviando...';
