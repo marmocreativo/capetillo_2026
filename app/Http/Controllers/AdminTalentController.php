@@ -82,7 +82,7 @@ class AdminTalentController extends Controller
         $this->syncGallery($request, $talent);
         $this->syncVideos($request, $talent);
 
-        return redirect()->route('admin.talents.index')->with('status', 'Talento creado correctamente.');
+        return redirect()->route('admin.talents.edit', $talent)->with('status', 'Talento creado correctamente.');
     }
 
     public function update(StoreTalentRequest $request, Talent $talent)
@@ -111,7 +111,7 @@ class AdminTalentController extends Controller
         $this->syncGallery($request, $talent);
         $this->syncVideos($request, $talent);
 
-        return redirect()->route('admin.talents.index')->with('status', 'Talento actualizado correctamente.');
+        return redirect()->route('admin.talents.edit', $talent)->with('status', 'Talento actualizado correctamente.');
     }
 
     protected function syncGallery(\Illuminate\Http\Request $request, Talent $talent): void

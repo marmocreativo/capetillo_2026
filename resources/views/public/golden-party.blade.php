@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Golden Party | ' . config('app.name'))
-@section('meta_description', 'Golden Party: decoración y ambientación, banquetes, tecnología y fiestas temáticas para bodas, XV años, eventos corporativos y más.')
+@section('meta_description', 'Golden Party: organización de eventos, decoración y ambientación, banquetes, tecnología y fiestas temáticas para bodas, XV años, eventos corporativos y más.')
 
 @section('public-content')
 
@@ -26,7 +26,9 @@
         </div>
     </div>
 </div>
+
 <div class="max-w-7xl mx-auto p-2">
+
     <div class="max-w-3xl mx-auto text-center mb-12">
         <h2 class="text-2xl font-bold mb-3">¿Qué es Golden Party?</h2>
         <p class="opacity-80">
@@ -35,66 +37,153 @@
         </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-14">
-        <div class="card bg-base-100 shadow-lg">
-            <div class="card-body">
-                <h3 class="card-title text-primary">Servicios</h3>
-                <ul class="mt-2 space-y-1 text-sm">
-                    <li>• Decoración y ambientación</li>
-                    <li>• Renta de mobiliario, loza y cristalería</li>
-                    <li>• Banquetes (alimentos y bebidas)</li>
-                    <li>• Personal de servicio</li>
-                    <li>• Tecnología</li>
-                    <li>• Fiestas temáticas</li>
-                </ul>
-            </div>
+    {{-- =========================================================
+         NUMERALIA
+    ========================================================== --}}
+    <div class="stats stats-vertical md:stats-horizontal shadow w-full mb-14 bg-base-100">
+        <div class="stat place-items-center">
+            <div class="stat-title">Eventos creados</div>
+            <div class="stat-value text-primary">+12 MIL</div>
+            <div class="stat-desc">Producidos y coordinados</div>
         </div>
-
-        <div class="card bg-base-100 shadow-lg">
-            <div class="card-body">
-                <h3 class="card-title text-primary">Tipo de eventos</h3>
-                <div class="flex flex-wrap gap-2 mt-2">
-                    @foreach (['Bodas', 'XV años', 'Graduaciones', 'Open House', 'Birthday party', 'Gender reveal', 'Fiestas corporativas y empresariales', 'Convenciones', 'Lanzamientos de marcas y productos', 'Inauguraciones'] as $eventType)
-                        <span class="text-sm md:text-md badge badge-outline badge-primary h-auto whitespace-normal text-center py-1.5 leading-snug">{{ $eventType }}</span>
-                    @endforeach
-                </div>
-            </div>
+        <div class="stat place-items-center">
+            <div class="stat-title">Empresas y familias</div>
+            <div class="stat-value text-primary">+750</div>
+            <div class="stat-desc">Que han confiado en nosotros</div>
+        </div>
+        <div class="stat place-items-center">
+            <div class="stat-title">Espectadores</div>
+            <div class="stat-value text-primary">+10 M</div>
+            <div class="stat-desc">Disfrutando eventos de alta calidad</div>
+        </div>
+        <div class="stat place-items-center">
+            <div class="stat-title">Trayectoria</div>
+            <div class="stat-value text-primary">27+</div>
+            <div class="stat-desc">Años en la industria</div>
         </div>
     </div>
 
+    {{-- =========================================================
+         EVENTOS (grid dinámico)
+    ========================================================== --}}
+    @if ($events->isNotEmpty())
+        <div class="mb-16">
+            <h2 class="text-2xl font-bold text-center mb-2">Organización de eventos</h2>
+            <p class="text-center opacity-70 mb-8 max-w-2xl mx-auto">
+                Cada tipo de evento tiene su propio equipo especializado, listo para hacer de tu celebración algo inolvidable.
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach ($events as $event)
+                    <a href="{{ route('events.show', $event->slug) }}"
+                       class="card bg-base-100 shadow-lg overflow-hidden group hover:shadow-xl transition-shadow">
+                        <div class="aspect-[4/3] overflow-hidden bg-base-300">
+                            @if ($event->cover_image)
+                                <img src="{{ Storage::url($event->cover_image) }}" alt="{{ $event->title }}"
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center opacity-30">
+                                    <hero-icon-outline name="sparkles" class="h-12 w-12"></hero-icon-outline>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="card-body p-5">
+                            <h3 class="card-title text-primary">{{ $event->title }}</h3>
+                            @if ($event->summary)
+                                <p class="text-sm opacity-70 line-clamp-2">{{ $event->summary }}</p>
+                            @endif
+                            <span class="link link-hover text-sm font-semibold mt-2">Conoce más →</span>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    {{-- =========================================================
+         POR QUÉ CONTRATARNOS (grid de cards con heroicons)
+    ========================================================== --}}
+    <div class="mb-14">
+        <h2 class="text-2xl font-bold text-center mb-8">¿Por qué contratarnos?</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach ([
+                ['icon' => 'building-storefront', 'title' => 'Empresa hermana de Capetillo Producciones', 'text' => 'Respaldo, experiencia y estructura de una de las agencias líderes de entretenimiento en México.'],
+                ['icon' => 'microphone', 'title' => 'Acceso directo a talento artístico', 'text' => 'Integramos a nuestra exclusiva plantilla de artistas para dar un toque único a tu evento.'],
+                ['icon' => 'clipboard-document-check', 'title' => 'Coordinación integral', 'text' => 'Un solo punto de contacto para toda la logística de tu evento, de principio a fin.'],
+                ['icon' => 'star', 'title' => 'Proveedores de primer nivel', 'text' => 'Locaciones, mobiliario y servicios seleccionados con los más altos estándares de calidad.'],
+                ['icon' => 'sparkles', 'title' => 'Experiencias a la medida', 'text' => 'Diseñamos cada detalle en función de tus gustos, tu estilo y las necesidades de tu evento.'],
+                ['icon' => 'trophy', 'title' => '+27 años de trayectoria', 'text' => 'Más de dos décadas de experiencia organizando eventos sociales inolvidables.'],
+            ] as $item)
+                <div class="card bg-base-100 shadow-lg">
+                    <div class="card-body items-center text-center">
+                        <div class="rounded-full bg-primary/10 p-4 mb-2">
+                            <hero-icon-outline name="{{ $item['icon'] }}" class="h-8 w-8 text-primary"></hero-icon-outline>
+                        </div>
+                        <h3 class="card-title text-primary text-lg">{{ $item['title'] }}</h3>
+                        <p class="text-sm opacity-70">{{ $item['text'] }}</p>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- =========================================================
+         SERVICIOS (grid de píldoras)
+    ========================================================== --}}
+    <div class="mb-14">
+        <h2 class="text-2xl font-bold text-center mb-8">Nuestros servicios</h2>
+        <div class="flex flex-wrap justify-center gap-3">
+            @foreach ([
+                'Decoración y ambientación',
+                'Renta de mobiliario, loza y cristalería',
+                'Banquetes (alimentos y bebidas)',
+                'Personal de servicio',
+                'Tecnología',
+                'Fiestas temáticas',
+            ] as $servicio)
+                <span class="badge badge-lg badge-outline badge-primary h-auto whitespace-normal text-center py-3 px-5 text-sm font-semibold">
+                    {{ $servicio }}
+                </span>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- =========================================================
+         GALERÍAS (carruseles infinitos, contenido fijo)
+    ========================================================== --}}
     @php
-        $galleries = [
+        $galleries = collect([
             'Decoración y Ambientación' => [
                 'subtitle' => 'Decoración en globos, Candy Bar, Decoración con flor, telaje y escenografías',
-                'images' => [
+                'images' => collect([
                     'deco_1.png','deco_2.png','deco_3.png','deco_4.png',
                     'deco_5.png','deco_6.png','deco_7.png','deco_8.png',
-                ],
+                ]),
             ],
             'Banquetes' => [
                 'subtitle' => null,
-                'images' => [
+                'images' => collect([
                     'banquete_1.png','banquete_2.png','banquete_3.png','banquete_4.png',
                     'banquete_5.png','banquete_6.png','banquete_7.jpeg','banquete_8.jpeg',
                     'banquete_9.jpeg','banquete_10.png','banquete_11.jpeg',
-                ],
+                ]),
             ],
             'Tecnología' => [
                 'subtitle' => 'Pantallas de video de alta calidad, Equipos de audio e iluminación, Efectos especiales, Escenarios, templetes y tarimas.',
-                'images' => [
+                'images' => collect([
                     'tecno_1.png','tecno_2.png','tecno_3.png','tecno_4.png',
                     'tecno_5.png','tecno_6.png','tecno_7.png','tecno_8.png',
                     'tecno_9.png','tecno_10.png','tecno_11.png','tecno_12.png'
-                ],
+                ]),
             ],
             'Fiestas Temáticas' => [
                 'subtitle' => 'Experiencias inmersivas, Photo opportunity, Shows y animación, Dj y talento artístico, Celebridades.',
-                'images' => [
+                'images' => collect([
                     'tematica_1.png','tematica_2.png','tematica_3.png','tematica_4.jpeg',
                     'tematica_5.jpeg','tematica_6.jpeg','tematica_7.jpeg','tematica_8.jpeg',
-                ],
+                ]),
             ],
-        ];
+        ]);
         $baseUploadUrl = 'https://capetilloproducciones.mx/images/goldenparty/';
     @endphp
 
@@ -104,9 +193,11 @@
             @if ($gallery['subtitle'])
                 <p class="opacity-70 mb-4">{{ $gallery['subtitle'] }}</p>
             @endif
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                @foreach ($gallery['images'] as $image)
-                    <div class="rounded-box overflow-hidden bg-base-200 aspect-square">
+
+            @php $carouselId = 'gp-carousel-' . \Illuminate\Support\Str::slug($title); @endphp
+            <div id="{{ $carouselId }}" class="gp-marquee-track flex gap-4 overflow-x-auto p-2 bg-base-100 rounded-box" style="scrollbar-width: none;">
+                @foreach ($gallery['images']->concat($gallery['images']) as $image)
+                    <div class="shrink-0 w-56 sm:w-64 aspect-square rounded-box overflow-hidden bg-base-200">
                         <img src="{{ $baseUploadUrl . $image }}" alt="{{ $title }}" class="w-full h-full object-cover">
                     </div>
                 @endforeach
@@ -114,6 +205,7 @@
         </div>
     @endforeach
 </div>
+
 <div class="hero bg-base-200 rounded-box p-10 my-12">
     <div class="hero-content w-full max-w-4xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full">
@@ -130,5 +222,29 @@
         </div>
     </div>
 </div>
+
+<script>
+(function () {
+    document.querySelectorAll('.gp-marquee-track').forEach(function (track) {
+        let paused = false;
+        const speed = 0.6;
+
+        track.addEventListener('mouseenter', () => paused = true);
+        track.addEventListener('mouseleave', () => paused = false);
+
+        function step() {
+            if (!paused) {
+                track.scrollLeft += speed;
+                if (track.scrollLeft >= track.scrollWidth - track.clientWidth - 1) {
+                    track.scrollLeft = 0;
+                }
+            }
+            requestAnimationFrame(step);
+        }
+
+        requestAnimationFrame(step);
+    });
+})();
+</script>
 
 @endsection

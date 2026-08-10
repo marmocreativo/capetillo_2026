@@ -91,6 +91,140 @@ protected function parseSections(string $text): array
     return $sections;
 }
 
+public function generateEventContent(string $eventTitle, string $ciudad = 'CDMX'): array
+{
+    $prompt = <<<PROMPT
+Eres un redactor experto en SEO y marketing de eventos para "Capetillo Producciones",
+una agencia mexicana de organización de eventos y contratación de talento artístico.
+
+Vas a redactar contenido para una página de servicio orientada a posicionar en buscadores
+la organización de este tipo de evento:
+
+Tipo de evento: {$eventTitle}
+Ciudad objetivo: {$ciudad}
+
+La página compite por búsquedas como "organización de {$eventTitle} en {$ciudad}",
+"organizar {$eventTitle} en {$ciudad}" y variantes similares.
+
+Genera 7 bloques de texto EXACTAMENTE con este formato, usando los delimitadores tal cual
+(no agregues nada antes del primer delimitador ni después del último):
+
+===SUMMARY===
+(Una sola oración de máximo 160 caracteres, persuasiva, para usarse como bajada bajo el título del hero)
+
+===CONTENT===
+(Descripción larga en HTML, usando etiquetas <p>, <h2> y <ul> donde aporten valor, 5 a 7 párrafos.
+Debe explicar el servicio de organización de este tipo de evento, qué incluye, por qué elegir a
+Capetillo Producciones, y mencionar de forma natural varias veces la frase clave
+"organización de {$eventTitle} en {$ciudad}" y variantes cercanas, sin caer en keyword stuffing.
+Tono cálido, profesional y persuasivo, orientado a conversión.
+NO incluyas formularios, botones ni datos de contacto.)
+
+===SERVICIOS===
+(3 a 5 servicios especializados relacionados con la organización de "{$eventTitle}", uno por línea,
+en el formato exacto: TITULO|DESCRIPCION
+Donde TITULO es corto (2 a 5 palabras) y DESCRIPCION es una explicación de 1 a 2 oraciones.
+Ejemplo de línea: Full Wedding Planning|Planeación integral desde el primer día: concepto, selección de venue, proveedores, diseño y coordinación total.
+No uses el símbolo "|" dentro del título ni la descripción.)
+
+===FAQS===
+(4 a 6 preguntas frecuentes reales que un cliente potencial tendría sobre la organización de "{$eventTitle}" en {$ciudad},
+en el formato exacto: PREGUNTA|RESPUESTA
+Donde PREGUNTA es una pregunta corta y natural, y RESPUESTA es una respuesta clara de 1 a 3 oraciones,
+optimizada para aparecer en fragmentos destacados de Google (featured snippets).
+Ejemplo de línea: ¿Con cuánta anticipación debo contratar la organización de mi boda?|Recomendamos contratar con 8 a 12 meses de anticipación para asegurar la disponibilidad de las mejores locaciones y proveedores.
+No uses el símbolo "|" dentro de la pregunta ni la respuesta.)
+
+===META_TITLE===
+(Título SEO, máximo 60 caracteres, debe incluir "Organización de {$eventTitle} en {$ciudad}")
+
+===META_DESCRIPTION===
+(Meta descripción SEO, máximo 155 caracteres, persuasiva, invita a cotizar el evento)
+
+===META_KEYWORDS===
+(6 a 10 palabras clave separadas por comas, relacionadas con "{$eventTitle}", "{$ciudad}" y organización de eventos)
+PROMPT;
+
+    $response = Http::withHeaders([
+        'x-goog-api-key' => config('services.gemini.key'),
+        'Content-Type' => 'application/json',
+    ])->timeout(60)->post(
+        'https://generativelanguage.googleapis.com/v1beta/models/' . config('services.gemini.model') . ':generateContent',
+        [
+            'contents' => [
+                ['parts' => [['text' => $prompt]]],
+            ],
+            'tools' => [
+                ['google_search' => new \stdClass()],
+            ],
+        ]
+    );
+
+    if ($response->failed()) {
+        throw new RuntimeException('Error al generar contenido con Gemini: ' . $response->body());
+    }
+
+    $text = data_get($response->json(), 'candidates.0.content.parts.0.text');
+
+    if (empty($text)) {
+        throw new RuntimeException('Gemini no devolvió contenido.');
+    }
+
+    return $this->parseEventSections($text);
+}
+
+protected function parseEventSections(string $text): array
+{
+    $pattern = '/===(SUMMARY|CONTENT|SERVICIOS|FAQS|META_TITLE|META_DESCRIPTION|META_KEYWORDS)===\s*(.*?)(?=(===[A-Z_]+===|$))/s';
+    preg_match_all($pattern, $text, $matches, PREG_SET_ORDER);
+
+    $sections = [
+        'summary' => '',
+        'content' => '',
+        'servicios' => '',
+        'faqs' => '',
+        'meta_title' => '',
+        'meta_description' => '',
+        'meta_keywords' => '',
+    ];
+
+    foreach ($matches as $match) {
+        $key = strtolower($match[1]);
+        $sections[$key] = trim($match[2]);
+    }
+
+    $sections['content'] = trim(str_replace(['```html', '```'], '', $sections['content']));
+
+    $sections['servicios_especializados'] = $this->parsePipedList($sections['servicios'], 'titulo_servicio', 'descripcion');
+    $sections['preguntas_frecuentes'] = $this->parsePipedList($sections['faqs'], 'pregunta', 'respuesta');
+
+    unset($sections['servicios'], $sections['faqs']);
+
+    return $sections;
+}
+
+protected function parsePipedList(string $raw, string $keyA, string $keyB): array
+{
+    $items = [];
+
+    if (empty($raw)) {
+        return $items;
+    }
+
+    foreach (explode("\n", $raw) as $line) {
+        $line = trim($line, "- \t");
+        if ($line === '' || ! str_contains($line, '|')) {
+            continue;
+        }
+        [$a, $b] = array_map('trim', explode('|', $line, 2));
+        if ($a !== '') {
+            $items[] = [$keyA => $a, $keyB => $b];
+        }
+    }
+
+    return $items;
+}
+
 public function generateExtraFields(string $talentName, array $categoryNames): array
 {
     $categories = implode(', ', $categoryNames);

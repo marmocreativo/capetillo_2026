@@ -9,14 +9,17 @@ use Illuminate\Support\Facades\Route;
 */
 Route::get('/', [\App\Http\Controllers\TalentoController::class, 'home'])->name('home');
 
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+
 Route::get('/talento', [\App\Http\Controllers\TalentoController::class, 'index'])->name('categories.index');
 Route::get('/buscar', [\App\Http\Controllers\TalentoController::class, 'search'])->name('search');
-Route::view('/golden-party', 'public.golden-party')->name('golden-party');
+Route::get('/golden-party', [\App\Http\Controllers\GoldenPartyController::class, 'index'])->name('golden-party');
 Route::view('/live-media', 'public.live-media')->name('live-media');
 Route::view('/capetillo-network', 'public.capetillo-network')->name('network');
 Route::view('/quienes-somos', 'public.quienes-somos')->name('about');
 Route::view('/contacto', 'public.contact')->name('contact.page');
 Route::post('/contacto', [\App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
+Route::post('/eventos/contacto', [\App\Http\Controllers\EventContactController::class, 'store'])->name('event-contacts.store');
 Route::view('/aviso-de-privacidad', 'public.privacy')->name('privacy');
 Route::get('/roster/{roster:public_token}', [\App\Http\Controllers\PublicRosterController::class, 'show'])->name('roster.public');
 
@@ -85,6 +88,19 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
     Route::resource('users', \App\Http\Controllers\AdminUserController::class);
 
+    Route::resource('events', \App\Http\Controllers\AdminEventController::class);
+
+    Route::get('event-contacts', [\App\Http\Controllers\AdminEventContactController::class, 'index'])->name('event-contacts.index');
+    Route::get('event-contacts/{eventContact}', [\App\Http\Controllers\AdminEventContactController::class, 'show'])->name('event-contacts.show');
+    Route::put('event-contacts/{eventContact}', [\App\Http\Controllers\AdminEventContactController::class, 'update'])->name('event-contacts.update');
+    Route::delete('event-contacts/{eventContact}', [\App\Http\Controllers\AdminEventContactController::class, 'destroy'])->name('event-contacts.destroy');
+    Route::post('events/{event}/generate-content', [\App\Http\Controllers\AdminEventContentController::class, 'generate'])
+    ->name('events.generate-content');
+
+    Route::get('search-history', [\App\Http\Controllers\AdminSearchHistoryController::class, 'index'])->name('search-history.index');
+    Route::delete('search-history/bulk-destroy', [\App\Http\Controllers\AdminSearchHistoryController::class, 'bulkDestroy'])->name('search-history.bulk-destroy');
+    Route::delete('search-history/{searchHistory}', [\App\Http\Controllers\AdminSearchHistoryController::class, 'destroy'])->name('search-history.destroy');
+
     Route::resource('logos-roster', \App\Http\Controllers\AdminLogoRosterController::class)
         ->only(['index', 'store', 'destroy'])
         ->parameters(['logos-roster' => 'logosRoster']);
@@ -98,5 +114,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 | Rutas públicas por slug (deben ir al final, son comodín)
 |--------------------------------------------------------------------------
 */
+Route::get('/{event:slug}', [\App\Http\Controllers\EventController::class, 'show'])
+    ->name('events.show')
+    ->where('event', 'organizacion-de-.+-en-[a-z0-9\-]+');
+
 Route::get('/{category:slug}', [\App\Http\Controllers\TalentoController::class, 'showCategory'])->name('categories.show');
 Route::get('/{category:slug}/{talent:slug}', [\App\Http\Controllers\TalentoController::class, 'showTalent'])->name('talents.show')->withoutScopedBindings();

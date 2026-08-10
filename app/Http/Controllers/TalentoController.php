@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Talent;
 use App\Models\HomeSlide;
+use App\Models\SearchHistory;
 
 class TalentoController extends Controller
 {
@@ -92,6 +93,8 @@ class TalentoController extends Controller
                 ->orderByRaw('CASE WHEN name LIKE ? THEN 0 ELSE 1 END', ["%{$query}%"])
                 ->orderBy('name')
                 ->get();
+
+            SearchHistory::log($query, $talents->count(), $request->ip());
         }
 
         return view('public.search.results', compact('talents', 'query'));

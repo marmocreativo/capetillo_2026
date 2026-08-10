@@ -29,7 +29,25 @@
                     <div class="hidden xl:flex items-center gap-0.5">
                         <a href="{{ route('categories.index') }}" class="btn btn-sm btn-ghost px-2">Talento</a>
                         <a href="{{ route('about') }}" class="btn btn-sm btn-ghost px-2">Quiénes Somos</a>
-                        <a href="{{ route('golden-party') }}" class="btn btn-sm btn-ghost px-2">Golden Party</a>
+
+                        <div class="dropdown dropdown-hover">
+                            <div tabindex="0" role="button" class="btn btn-sm btn-ghost px-2 gap-1">
+                                Golden Party
+                                <svg class="h-3 w-3 opacity-70" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" />
+                                </svg>
+                            </div>
+                            <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[70] w-64 p-2 shadow-lg">
+                                <li><a href="{{ route('golden-party') }}" class="font-semibold">¿Qué es Golden Party?</a></li>
+                                @if ($headerEvents->isNotEmpty())
+                                    <div class="divider my-1"></div>
+                                    @foreach ($headerEvents as $headerEvent)
+                                        <li><a href="{{ route('events.show', $headerEvent->slug) }}">{{ $headerEvent->title }}</a></li>
+                                    @endforeach
+                                @endif
+                            </ul>
+                        </div>
+
                         <a href="{{ route('live-media') }}" class="btn btn-sm btn-ghost px-2">Live Media</a>
                         <a href="{{ route('network') }}" class="btn btn-sm btn-ghost px-2">Capetillo Network</a>
                         <a href="{{ route('contact.page') }}" class="btn btn-sm btn-ghost px-2">Contacto</a>
@@ -143,7 +161,17 @@
             <ul class="space-y-1">
                 <li><a href="{{ route('categories.index') }}">Talento</a></li>
                 <li><a href="{{ route('about') }}">Quiénes Somos</a></li>
-                <li><a href="{{ route('golden-party') }}">Golden Party</a></li>
+                <li>
+                    <details>
+                        <summary>Golden Party</summary>
+                        <ul>
+                            <li><a href="{{ route('golden-party') }}" class="font-semibold">¿Qué es Golden Party?</a></li>
+                            @foreach ($headerEvents as $headerEvent)
+                                <li><a href="{{ route('events.show', $headerEvent->slug) }}">{{ $headerEvent->title }}</a></li>
+                            @endforeach
+                        </ul>
+                    </details>
+                </li>
                 <li><a href="{{ route('live-media') }}">Live Media</a></li>
                 <li><a href="{{ route('network') }}">Capetillo Network</a></li>
                 <li><a href="{{ route('contact.page') }}">Contacto</a></li>
