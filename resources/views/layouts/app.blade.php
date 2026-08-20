@@ -24,6 +24,16 @@
     <meta name="twitter:description" content="@yield('meta_description', 'Agencia de contratación de talento artístico en México.')">
     <meta name="twitter:image" content="@yield('og_image', asset('images/og-default.jpg'))">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J76LGEL4M1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-J76LGEL4M1');
+    </script>
 </head>
 <body class="min-h-screen">
     @yield('content')
