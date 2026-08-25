@@ -11,6 +11,22 @@ Route::get('/', [\App\Http\Controllers\TalentoController::class, 'home'])->name(
 
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
+
+// Tarjetas digitales
+Route::view('/tarjeta/alberto-capetillo', 'public.tarjeta-alberto')->name('tarjeta.alberto');
+Route::get('/tarjeta/alberto-capetillo/vcard', [\App\Http\Controllers\PublicVCardController::class, 'alberto'])
+    ->name('tarjeta.alberto.vcard');
+
+Route::view('/tarjeta/paulina-capetillo', 'public.tarjeta-paulina')->name('tarjeta.paulina');
+Route::get('/tarjeta/paulina-capetillo/vcard', [\App\Http\Controllers\PublicVCardController::class, 'paulina'])
+    ->name('tarjeta.paulina.vcard');
+
+Route::view('/tarjeta/carlos-jaime', 'public.tarjeta-carlos')->name('tarjeta.carlos');
+
+Route::get('/tarjeta/carlos-jaime/vcard', [\App\Http\Controllers\PublicVCardController::class, 'carlos'])
+    ->name('tarjeta.carlos.vcard');
+
+// sitio
 Route::get('/talento', [\App\Http\Controllers\TalentoController::class, 'index'])->name('categories.index');
 Route::get('/buscar', [\App\Http\Controllers\TalentoController::class, 'search'])->name('search');
 Route::get('/golden-party', [\App\Http\Controllers\GoldenPartyController::class, 'index'])->name('golden-party');
