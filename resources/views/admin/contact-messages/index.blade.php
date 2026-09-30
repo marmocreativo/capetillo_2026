@@ -3,7 +3,11 @@
 @section('admin-content')
 <div class="flex items-center justify-between mb-1">
     <h1 class="text-2xl font-bold">Mensajes de contacto</h1>
-    <a href="{{ route('admin.contact-messages.create') }}" class="btn btn-primary btn-sm">+ Nueva cotización</a>
+    <div class="flex items-center gap-2">
+        <a href="{{ route('admin.contact-messages.export-excel', request()->only(['search', 'type', 'status'])) }}"
+           class="btn btn-success btn-sm">Exportar Excel</a>
+        <a href="{{ route('admin.contact-messages.create') }}" class="btn btn-primary btn-sm">+ Nueva cotización</a>
+    </div>
 </div>
 <p class="opacity-60 mb-6">Consultas generales y solicitudes de contratación recibidas desde el sitio público.</p>
 

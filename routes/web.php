@@ -87,6 +87,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('talents/batch/all-ids', [\App\Http\Controllers\AdminTalentContentController::class, 'allIds'])
     ->name('talents.all-ids');
 
+    Route::get('contact-messages/export-excel', [\App\Http\Controllers\AdminContactMessageController::class, 'export'])
+    ->name('contact-messages.export-excel');
+
     Route::delete('contact-messages/bulk-destroy', [\App\Http\Controllers\AdminContactMessageController::class, 'bulkDestroy'])
     ->name('contact-messages.bulk-destroy');
 

@@ -13,12 +13,15 @@ use App\Models\Talent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Exports\ContactMessagesExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminContactMessageController extends Controller
 {
     public function __construct(protected \App\Services\ImageUploadService $imageUploadService)
     {
     }
+    
     public function index(Request $request)
     {
         $query = ContactMessage::with('talent')->latest();
@@ -42,6 +45,16 @@ class AdminContactMessageController extends Controller
         $messages = $query->paginate(20)->withQueryString();
 
         return view('admin.contact-messages.index', compact('messages'));
+    }
+
+    public function export(Request $request)
+    {
+        $filters = $request->only(['search', 'type', 'status']);
+
+        return Excel::download(
+            new ContactMessagesExport($filters),
+            'contactos-' . now()->format('Y-m-d_His') . '.xlsx'
+        );
     }
 
     public function create()
