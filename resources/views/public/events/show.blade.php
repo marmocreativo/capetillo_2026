@@ -33,7 +33,7 @@
                 <div class="stats stats-vertical sm:stats-horizontal shadow mt-10 bg-base-100/95 w-full">
                     <div class="stat place-items-center">
                         <div class="stat-title">Trayectoria</div>
-                        <div class="stat-value text-primary text-2xl">27+</div>
+                        <div class="stat-value text-primary text-2xl">+27</div>
                         <div class="stat-desc">años de experiencia</div>
                     </div>
                     <div class="stat place-items-center">

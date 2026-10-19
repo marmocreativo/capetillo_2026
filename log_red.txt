@@ -1,0 +1,6 @@
+449.715630s - 2387565 B/s - http://ipv4.download.think474.690117s - 2261950 B/s - http://ipv4.download.think489.259654s - 2194625 B/s - http://speedtest.tele2.net/1GB.zip
+501.363958s - 2141608 B/s - http://ipv4.download.thinkbroadband.com/1GB.zip
+ttps://ftp.fau.de/test/1gb.test499.198877s - 2150896 B/s - http://ipv4.download.thinkbroadband.com/1GB.zip
+1863.846537s - 576089 B/s - http://speedtest.tele2.net/1GB.zip
+4s - 581126 B/s - http://speedtest.tele2.net/1GB.zip
+s - 1207498 B/s - http://ipv4.download.thinkbroadband.com/1GB.zip

@@ -78,7 +78,7 @@
                 <div>
                     <img src="{{ asset('images/logo_capetillo_blanco.svg') }}" alt="{{ config('app.name') }}" class="h-12 w-auto mb-4 p-2 rounded">
                     <p class="text-sm opacity-70 leading-relaxed">
-                        Agencia de contratación de talento artístico con más de 15 años conectando eventos
+                        Agencia de contratación de talento artístico con más de 27 años conectando eventos
                         con los comediantes, cantantes, bandas y conferencistas más solicitados de México.
                     </p>
                 </div>

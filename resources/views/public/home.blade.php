@@ -39,7 +39,7 @@
         <div class="hero-slide absolute inset-0 opacity-100 z-10">
             <div class="relative h-full flex items-center justify-center text-center px-6">
                 <div class="max-w-xl">
-                    <span class="badge badge-primary mb-3 font-semibold">+15 años de trayectoria</span>
+                    <span class="badge badge-primary mb-3 font-semibold">27 años de trayectoria</span>
                     <h1 class="text-2xl md:text-4xl font-bold text-white leading-tight uppercase">
                         El talento que tu evento merece
                     </h1>
