@@ -101,6 +101,13 @@
         <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactivos</option>
     </select>
 
+    <select name="sort" class="select select-bordered" onchange="this.form.submit()" title="Ordenar por">
+        <option value="orden" {{ $sort === 'orden' ? 'selected' : '' }}>Orden manual</option>
+        <option value="alpha" {{ $sort === 'alpha' ? 'selected' : '' }}>Alfabético (A-Z)</option>
+        <option value="recent" {{ $sort === 'recent' ? 'selected' : '' }}>Más recientes</option>
+        <option value="popular" {{ $sort === 'popular' ? 'selected' : '' }}>Popularidad (más mensajes)</option>
+    </select>
+
     <select name="per_page" class="select select-bordered" onchange="this.form.submit()">
         <option value="15" {{ (int) request('per_page', 15) === 15 ? 'selected' : '' }}>15 por página</option>
         <option value="50" {{ (int) request('per_page') === 50 ? 'selected' : '' }}>50 por página</option>
@@ -110,12 +117,16 @@
 
     <button type="submit" class="btn btn-primary">Buscar</button>
 
-    @if (request('search') || request('category') || request('status') || request('per_page'))
+    @if (request('search') || request('category') || request('status') || request('per_page') || request('sort'))
         <a href="{{ route('admin.talents.index') }}" class="btn btn-ghost">Limpiar</a>
     @endif
 </form>
 
+@if ($sort !== 'orden')
+    <p class="text-xs text-warning mb-2 hidden lg:block">El arrastre para reordenar solo está disponible con el orden "Orden manual".</p>
+@else
 <p class="text-xs opacity-60 mb-2 hidden lg:block">El orden por arrastre solo reordena los talentos visibles en esta página. Si tienes muchos talentos, sube el número de "por página" arriba (hasta 250) para reordenarlos todos a la vez.</p>
+@endif
 
 <div class="overflow-x-auto bg-base-100 rounded-box shadow hidden lg:block">
     <table class="table">
@@ -125,8 +136,8 @@
                 <th><input type="checkbox" id="select-all" class="checkbox checkbox-sm"></th>
                 <th>Imagen</th>
                 <th>Nombre</th>
-                <th>Slug</th>
                 <th>Categorías</th>
+                <th class="text-center">Mensajes</th>
                 <th>Honorarios</th>
                 <th>Activo</th>
                 <th>Destacado</th>
@@ -140,17 +151,19 @@
                     <td><input type="checkbox" class="checkbox checkbox-sm talent-checkbox" value="{{ $talent->slug }}"></td>
                     <td>
                         @if ($talent->cover_image)
-                            <img src="{{ Storage::url($talent->cover_image) }}" class="w-12 h-12 object-cover rounded">
+                            <img src="{{ Storage::url($talent->cover_image) }}" class="w-12 aspect-[3/4] object-cover rounded">
                         @else
-                            <div class="w-12 h-12 bg-base-200 rounded"></div>
+                            <div class="w-12 aspect-[3/4] bg-base-200 rounded"></div>
                         @endif
                     </td>
                     <td>{{ $talent->name }}</td>
-                    <td class="text-sm opacity-70">/{{ $talent->slug }}</td>
                     <td>
                         @foreach ($talent->categories as $category)
-                            <span class="badge badge-sm badge-outline">{{ $category->name }}</span>
+                            <span class="badge badge-outline h-auto min-h-0 py-0.5 px-1.5 text-[10px] leading-tight whitespace-normal">{{ $category->name }}</span>
                         @endforeach
+                    </td>
+                    <td class="text-center">
+                        <span class="badge badge-sm {{ $talent->contact_messages_count > 0 ? 'badge-primary' : 'badge-ghost' }}">{{ $talent->contact_messages_count }}</span>
                     </td>
                     <td>
                         <span class="honorarios-cell inline-flex items-center gap-1 cursor-pointer hover:underline decoration-dashed"
@@ -171,6 +184,22 @@
                             {{ $talent->destacado ? 'checked' : '' }}>
                     </td>
                     <td class="text-right">
+                        @php($publicCategory = $talent->categories->first())
+                        @if ($publicCategory)
+                            <a href="{{ route('talents.show', [$publicCategory->slug, $talent->slug]) }}" target="_blank" rel="noopener" class="btn btn-xs btn-ghost" title="Ver en el sitio público">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                Ver
+                            </a>
+                        @endif
+                        <button type="button" class="btn btn-xs btn-outline btn-primary talent-stats-btn" title="Ver estadísticas"
+                                data-url="{{ route('admin.talents.stats', $talent) }}"
+                                data-name="{{ $talent->name }}"
+                                data-photo="{{ $talent->cover_image ? Storage::url($talent->cover_image) : '' }}"
+                                data-edit="{{ route('admin.talents.edit', $talent) }}"
+                                data-insights="{{ route('admin.talents.insights', $talent) }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                            Estadísticas
+                        </button>
                         <a href="{{ route('admin.talents.edit', $talent) }}" class="btn btn-xs">Editar</a>
                         <form action="{{ route('admin.talents.destroy', $talent) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Eliminar este talento?');">
                             @csrf
@@ -181,7 +210,7 @@
                 </tr>
            @empty
                 <tr>
-                    <td colspan="9" class="text-center py-6 opacity-60">Aún no hay talentos.</td>
+                    <td colspan="10" class="text-center py-6 opacity-60">Aún no hay talentos.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -194,13 +223,14 @@
             <div class="card-body p-4 gap-2">
                 <div class="flex gap-3">
                     @if ($talent->cover_image)
-                        <img src="{{ Storage::url($talent->cover_image) }}" class="w-16 h-16 object-cover rounded shrink-0">
+                        <img src="{{ Storage::url($talent->cover_image) }}" class="w-16 aspect-[3/4] object-cover rounded shrink-0">
                     @else
-                        <div class="w-16 h-16 bg-base-200 rounded shrink-0"></div>
+                        <div class="w-16 aspect-[3/4] bg-base-200 rounded shrink-0"></div>
                     @endif
                     <div class="min-w-0 flex-1">
                         <p class="font-medium truncate">{{ $talent->name }}</p>
                         <p class="text-xs opacity-60 truncate">/{{ $talent->slug }}</p>
+                        <p class="text-xs mt-1"><span class="badge badge-xs {{ $talent->contact_messages_count > 0 ? 'badge-primary' : 'badge-ghost' }}">{{ $talent->contact_messages_count }}</span> mensajes</p>
                         <p class="text-sm mt-1">
                             {{ $talent->honorarios_default !== null ? '$' . number_format($talent->honorarios_default, 2) : 'Sin honorarios' }}
                         </p>
@@ -209,7 +239,7 @@
 
                 <div class="flex flex-wrap gap-1">
                     @foreach ($talent->categories as $category)
-                        <span class="badge badge-xs badge-outline">{{ $category->name }}</span>
+                        <span class="badge badge-outline h-auto min-h-0 py-0.5 px-1.5 text-[10px] leading-tight whitespace-normal">{{ $category->name }}</span>
                     @endforeach
                 </div>
 
@@ -229,6 +259,16 @@
                 </div>
 
                 <div class="flex items-center gap-2 mt-2">
+                    @php($publicCategory = $talent->categories->first())
+                    @if ($publicCategory)
+                        <a href="{{ route('talents.show', [$publicCategory->slug, $talent->slug]) }}" target="_blank" rel="noopener" class="btn btn-xs btn-ghost">Ver sitio</a>
+                    @endif
+                    <button type="button" class="btn btn-xs btn-outline btn-primary talent-stats-btn"
+                            data-url="{{ route('admin.talents.stats', $talent) }}"
+                            data-name="{{ $talent->name }}"
+                            data-photo="{{ $talent->cover_image ? Storage::url($talent->cover_image) : '' }}"
+                            data-edit="{{ route('admin.talents.edit', $talent) }}"
+                            data-insights="{{ route('admin.talents.insights', $talent) }}">Estadísticas</button>
                     <a href="{{ route('admin.talents.edit', $talent) }}" class="btn btn-xs flex-1">Editar</a>
                     <form action="{{ route('admin.talents.destroy', $talent) }}" method="POST" onsubmit="return confirm('¿Eliminar este talento?');">
                         @csrf
@@ -484,6 +524,28 @@ document.getElementById('studio-all-btn').addEventListener('click', async () => 
     runStudioBatch(ids);
 });
 </script>
+@include('admin.partials.stats-modal')
+<script>
+document.querySelectorAll('.talent-stats-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        try {
+            const res = await fetch(btn.dataset.url, { headers: { 'Accept': 'application/json' } });
+            if (!res.ok) throw new Error();
+            const { stats } = await res.json();
+            renderStats(
+                { title: btn.dataset.name, subtitle: 'Artista', photo: btn.dataset.photo, link: btn.dataset.edit, insightsUrl: btn.dataset.insights },
+                stats,
+                'Estados que más lo solicitan'
+            );
+        } catch (e) {
+            alert('No se pudieron cargar las estadísticas.');
+        } finally {
+            btn.disabled = false;
+        }
+    });
+});
+</script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
 document.querySelectorAll('.toggle-active').forEach(el => {
@@ -517,7 +579,7 @@ document.querySelectorAll('.toggle-destacado').forEach(el => {
 });
 
 const sortableBody = document.getElementById('sortable-body');
-if (sortableBody) {
+if (sortableBody && {{ $sort === 'orden' ? 'true' : 'false' }}) {
     new Sortable(sortableBody, {
         handle: '.drag-handle',
         animation: 150,
@@ -609,4 +671,4 @@ document.querySelectorAll('.honorarios-cell').forEach(cell => {
     });
 });
 </script>
-@endsection
+@endsection

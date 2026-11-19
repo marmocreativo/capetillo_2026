@@ -30,6 +30,7 @@ class AdminEventContactController extends Controller
 
     public function show(EventContact $eventContact)
     {
+        $eventContact->markAsRead(auth()->id());
         $eventContact->load('event');
 
         return view('admin.event-contacts.show', compact('eventContact'));

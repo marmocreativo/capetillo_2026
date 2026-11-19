@@ -35,7 +35,12 @@
         <tbody>
             @forelse ($contacts as $contact)
                 <tr class="hover cursor-pointer" onclick="window.location='{{ route('admin.event-contacts.show', $contact) }}'">
-                    <td>{{ $contact->name }}</td>
+                    <td>
+                        <span @class(['font-semibold' => $contact->isUnread()])>{{ $contact->name }}</span>
+                        @if ($contact->isUnread())
+                            <span class="badge badge-primary badge-xs ml-1">Nuevo</span>
+                        @endif
+                    </td>
                     <td>{{ $contact->event?->title }}</td>
                     <td>{{ $contact->email }}</td>
                     <td>{{ $contact->phone ?: '—' }}</td>

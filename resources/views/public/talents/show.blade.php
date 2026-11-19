@@ -65,14 +65,16 @@
             
 
             <div class="card">
-                <h2 class="card-title mb-2">Sobre {{ $talent->name }}</h2>
-                @if ($talent->content)
-                    <div class="leading-relaxed space-y-4 text-base-content/90 [&_p]:leading-relaxed">
-                        {!! $talent->content !!}
-                    </div>
-                @else
-                    <p class="opacity-60">Estamos preparando la información de este talento. Contáctanos para más detalles.</p>
-                @endif
+                <div class="card-body">
+                    <h2 class="card-title mb-2">Sobre {{ $talent->name }}</h2>
+                    @if ($talent->content)
+                        <div class="leading-relaxed space-y-4 text-base-content/90 [&_p]:leading-relaxed">
+                            {!! $talent->content !!}
+                        </div>
+                    @else
+                        <p class="opacity-60">Estamos preparando la información de este talento. Contáctanos para más detalles.</p>
+                    @endif
+                </div>
             </div>
         </div>
 

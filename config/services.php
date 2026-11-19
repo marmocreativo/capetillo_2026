@@ -34,6 +34,14 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'google' => [
+        // Cuenta de servicio (JSON). Ruta absoluta o relativa a storage/app.
+        'credentials' => env('GOOGLE_CREDENTIALS_PATH', 'google/credentials.json'),
+        // Property ID numérico de GA4 (no el G-XXXX).
+        'ga4_property_id' => env('GOOGLE_GA4_PROPERTY_ID'),
+        // Propiedad de Search Console, ej. sc-domain:midominio.mx o https://midominio.mx/
+        'search_console_site' => env('GOOGLE_SEARCH_CONSOLE_SITE'),
+    ],
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
         'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),

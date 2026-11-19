@@ -63,6 +63,12 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('rosters/{roster}/export', [\App\Http\Controllers\AdminRosterExportController::class, 'export'])
     ->name('rosters.export');
 
+    Route::get('talents/{talent}/stats', [\App\Http\Controllers\AdminTalentController::class, 'stats'])
+    ->name('talents.stats');
+
+    Route::get('talents/{talent}/insights', [\App\Http\Controllers\AdminTalentController::class, 'insights'])
+    ->name('talents.insights');
+
     Route::post('talents/reorder', [\App\Http\Controllers\AdminTalentController::class, 'reorder'])
     ->name('talents.reorder');
 

@@ -20,7 +20,7 @@ class AdminTalentController extends Controller
 
     public function index(\Illuminate\Http\Request $request)
     {
-        $query = Talent::with('categories');
+        $query = Talent::with('categories')->withCount('contactMessages');
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
@@ -42,14 +42,32 @@ class AdminTalentController extends Controller
         $perPage = (int) $request->input('per_page', 15);
         $perPage = in_array($perPage, [15, 50, 100, 250], true) ? $perPage : 15;
 
-        $talents = $query->orderBy('orden')
-            ->orderBy('name')
-            ->paginate($perPage)
+        $sort = $request->input('sort', 'orden');
+        $sort = in_array($sort, ['orden', 'alpha', 'recent', 'popular'], true) ? $sort : 'orden';
+
+        match ($sort) {
+            'alpha' => $query->orderBy('name'),
+            'recent' => $query->orderByDesc('created_at')->orderBy('name'),
+            'popular' => $query->orderByDesc('contact_messages_count')->orderBy('name'),
+            default => $query->orderBy('orden')->orderBy('name'),
+        };
+
+        $talents = $query->paginate($perPage)
             ->withQueryString();
 
         $categories = Category::orderBy('name')->get();
 
-        return view('admin.talents.index', compact('talents', 'categories'));
+        return view('admin.talents.index', compact('talents', 'categories', 'sort'));
+    }
+
+    public function stats(Talent $talent, \App\Services\HiringStatsService $stats)
+    {
+        return response()->json(['stats' => $stats->forTalent($talent)]);
+    }
+
+    public function insights(Talent $talent, \App\Services\GoogleInsightsService $insights)
+    {
+        return response()->json($insights->forTalent($talent));
     }
 
     public function create()

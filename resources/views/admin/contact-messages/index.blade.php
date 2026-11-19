@@ -122,7 +122,12 @@
                                     <span class="badge badge-ghost badge-sm">General</span>
                                 @endif
                             </td>
-                            <td>{{ $message->name }}</td>
+                            <td>
+                                <span @class(['font-semibold' => $message->isUnread()])>{{ $message->name }}</span>
+                                @if ($message->isUnread())
+                                    <span class="badge badge-primary badge-xs ml-1">Nuevo</span>
+                                @endif
+                            </td>
                             <td class="text-xs">
                                 <div>{{ $message->email }}</div>
                                 @if ($message->phone)

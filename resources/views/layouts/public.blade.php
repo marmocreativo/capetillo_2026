@@ -2,7 +2,7 @@
 
 @section('content')
 
-<div class="drawer overflow-x-hidden">
+<div class="public-shell drawer overflow-x-hidden">
     <input id="mobile-drawer" type="checkbox" class="drawer-toggle">
 
     <div class="drawer-content overflow-x-hidden">

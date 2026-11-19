@@ -73,6 +73,12 @@ class Talent extends Model
         return $this->hasMany(RosterTalent::class);
     }
 
+    /** Solicitudes de contratación recibidas para este talento. */
+    public function contactMessages(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ContactMessage::class)->where('type', 'contratacion');
+    }
+
     public function getRouteKeyName(): string
     {
         return 'slug';

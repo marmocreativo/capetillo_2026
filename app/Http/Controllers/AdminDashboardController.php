@@ -2,43 +2,59 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
-use App\Models\Talent;
 use App\Models\ContactMessage;
+use App\Services\HiringStatsService;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AdminDashboardController extends Controller
 {
     public function index()
     {
-        $totalTalents = Talent::count();
-        $activeTalents = Talent::where('is_active', true)->count();
-        $inactiveTalents = $totalTalents - $activeTalents;
+        // KPIs
+        $totalMessages = ContactMessage::count();
+        $monthMessages = ContactMessage::where('created_at', '>=', now()->startOfMonth())->count();
+        $dailyAverage = round($monthMessages / max(1, now()->day), 1);
 
-        $totalCategories = Category::count();
-        $activeCategories = Category::where('is_active', true)->count();
+        // Periodo anterior: mismo tramo del mes pasado (para mensajes) y mes pasado completo (para el promedio)
+        $prevMonthStart = now()->startOfMonth()->subMonthNoOverflow();
+        $prevMonthEnd = $prevMonthStart->copy()->endOfMonth();
+        $prevSameSpanEnd = $prevMonthStart->copy()->addDays(now()->day - 1)->endOfDay()->min($prevMonthEnd);
 
-        $talentsWithoutContent = Talent::where(function ($q) {
-            $q->whereNull('content')->orWhere('content', '');
-        })->count();
+        $prevMonthMessages = ContactMessage::whereBetween('created_at', [$prevMonthStart, $prevSameSpanEnd])->count();
+        $prevMonthTotal = ContactMessage::whereBetween('created_at', [$prevMonthStart, $prevMonthEnd])->count();
+        $prevDailyAverage = round($prevMonthTotal / max(1, $prevMonthStart->daysInMonth), 1);
 
-        $talentsWithoutSummary = Talent::where(function ($q) {
-            $q->whereNull('summary')->orWhere('summary', '');
-        })->count();
-
-        $talentsWithoutImages = Talent::doesntHave('images')->count();
-
-        $categoriesWithCounts = Category::withCount('talents')
-            ->orderByDesc('talents_count')
-            ->take(6)
+        $monthComparison = $this->compare($monthMessages, $prevMonthMessages, 'vs ' . $prevMonthMessages . ' al día ' . now()->day . ' del mes pasado');
+        $averageComparison = $this->compare($dailyAverage, $prevDailyAverage, 'vs ' . $prevDailyAverage . ' promedio del mes pasado');
+        // Nuevos mensajes (en espera de cotización), con scroll en la vista
+        $recentInitialMessages = ContactMessage::where('status', 'en_espera_cotizacion')
+            ->latest()
+            ->take(30)
             ->get();
 
-        $recentTalents = Talent::with('categories')
-            ->orderByDesc('created_at')
-            ->take(5)
-            ->get();
+        // Mensajes por día (últimos 60: 30 actuales + 30 del periodo anterior; la vista filtra a 30/15/7)
+        $messagesPerDay = ContactMessage::where('created_at', '>=', now()->subDays(59)->startOfDay())
+            ->select(DB::raw('DATE(created_at) as fecha'), DB::raw('count(*) as total'))
+            ->groupBy('fecha')
+            ->pluck('total', 'fecha');
 
-            // Artistas más populares (por solicitudes de contratación recibidas)
+        $dailyMessages = collect(range(59, 0))->map(function ($daysAgo) use ($messagesPerDay) {
+            $date = now()->subDays($daysAgo);
+
+            return [
+                'label' => $date->format('d/m'),
+                'date' => $date->format('d/m/Y'),
+                'total' => (int) ($messagesPerDay[$date->format('Y-m-d')] ?? 0),
+            ];
+        });
+
+        // Solicitudes de contratación (base de artistas y estados)
+        $hirings = ContactMessage::where('type', 'contratacion')
+            ->get(['talent_id', 'talent_name', 'estado_republica', 'status', 'cotizacion_final', 'created_at']);
+
+        // Artistas más populares, con estadísticas para el modal
         $popularTalents = ContactMessage::select('talent_id', DB::raw('count(*) as total_mensajes'))
             ->where('type', 'contratacion')
             ->whereNotNull('talent_id')
@@ -50,96 +66,62 @@ class AdminDashboardController extends Controller
             ->filter(fn ($row) => $row->talent !== null)
             ->values();
 
-        // Ventas de los últimos 3 meses (mensajes marcados como "contrato_pagado")
-        $salesByMonth = collect(range(2, 0))->map(function ($monthsAgo) {
-            $date = now()->subMonths($monthsAgo);
-
-            $total = ContactMessage::where('status', 'contrato_pagado')
-                ->whereYear('updated_at', $date->year)
-                ->whereMonth('updated_at', $date->month)
-                ->sum('cotizacion_final');
-
-            $count = ContactMessage::where('status', 'contrato_pagado')
-                ->whereYear('updated_at', $date->year)
-                ->whereMonth('updated_at', $date->month)
-                ->count();
+        $talentCards = $popularTalents->map(function ($row) use ($hirings) {
+            $rows = $hirings->where('talent_id', $row->talent_id);
 
             return [
-                'label' => $date->translatedFormat('M Y'),
-                'total' => (float) $total,
-                'count' => $count,
+                'id' => $row->talent_id,
+                'name' => $row->talent->name,
+                'photo' => $row->talent->cover_image
+                    ? Storage::url($row->talent->cover_image)
+                    : asset('images/avatar-placeholder.png'),
+                'total' => (int) $row->total_mensajes,
+                'stats' => app(HiringStatsService::class)->summarize($rows, 'estado_republica'),
+                'edit_url' => route('admin.talents.edit', $row->talent),
+                'insights_url' => route('admin.talents.insights', $row->talent),
             ];
         });
 
-        // Contactos de contratación por estado
-        $contactsByState = ContactMessage::select('estado_republica', DB::raw('count(*) as total'))
-            ->where('type', 'contratacion')
-            ->whereNotNull('estado_republica')
-            ->groupBy('estado_republica')
-            ->pluck('total', 'estado_republica');
-
-        // Talento más popular por estado
-        $topTalentByState = ContactMessage::select('estado_republica', 'talent_name', DB::raw('count(*) as total'))
-            ->where('type', 'contratacion')
-            ->whereNotNull('estado_republica')
-            ->whereNotNull('talent_name')
-            ->groupBy('estado_republica', 'talent_name')
-            ->orderByDesc('total')
-            ->get()
-            ->groupBy('estado_republica')
-            ->map(fn ($rows) => $rows->first()->talent_name);
-        
-        // Datos para el mapa SVG real de México
+        // Mapa: contactos por estado + estadísticas para el modal
         $svgIds = config('estados_mexico_svg_ids');
+        $byState = $hirings->whereNotNull('estado_republica')->groupBy('estado_republica');
+
         $mexicoMapData = [];
         foreach ($svgIds as $estado => $svgId) {
+            $rows = $byState->get($estado, collect());
+            $top = $rows->whereNotNull('talent_name')->groupBy('talent_name')
+                ->map->count()->sortDesc()->keys()->first();
+
             $mexicoMapData[$svgId] = [
                 'name' => $estado,
-                'count' => $contactsByState[$estado] ?? 0,
-                'topTalent' => $topTalentByState[$estado] ?? 'Sin datos',
+                'count' => $rows->count(),
+                'topTalent' => $top ?? 'Sin datos',
+                'stats' => app(HiringStatsService::class)->summarize($rows, 'talent_name'),
             ];
         }
 
-        // Últimos mensajes en espera de cotización
-        $recentInitialMessages = ContactMessage::where('status', 'en_espera_cotizacion')
-            ->latest()
-            ->take(5)
-            ->get();
+        return view('admin.dashboard', [
+            'totalMessages' => $totalMessages,
+            'monthMessages' => $monthMessages,
+            'dailyAverage' => $dailyAverage,
+            'monthComparison' => $monthComparison,
+            'averageComparison' => $averageComparison,
+            'recentInitialMessages' => $recentInitialMessages,
+            'dailyMessages' => $dailyMessages,
+            'talentCards' => $talentCards,
+            'mexicoMapData' => $mexicoMapData,
+        ]);
+    }
 
-        // Mensajes recibidos por día durante el último mes
-        $messagesPerDay = ContactMessage::where('created_at', '>=', now()->subDays(29)->startOfDay())
-            ->select(DB::raw('DATE(created_at) as fecha'), DB::raw('count(*) as total'))
-            ->groupBy('fecha')
-            ->pluck('total', 'fecha');
+    /** Compara un valor con su periodo anterior. */
+    private function compare(float|int $current, float|int $previous, string $hint): array
+    {
+        $pct = $previous > 0 ? round(($current - $previous) / $previous * 100) : null;
 
-        $dailyMessages = collect(range(29, 0))->map(function ($daysAgo) use ($messagesPerDay) {
-            $date = now()->subDays($daysAgo);
-            $key = $date->format('Y-m-d');
-
-            return [
-                'label' => $date->format('d/m'),
-                'total' => (int) ($messagesPerDay[$key] ?? 0),
-            ];
-        });
-
-        return view('admin.dashboard', compact(
-            'totalTalents',
-            'activeTalents',
-            'inactiveTalents',
-            'totalCategories',
-            'activeCategories',
-            'talentsWithoutContent',
-            'talentsWithoutSummary',
-            'talentsWithoutImages',
-            'categoriesWithCounts',
-            'recentTalents',
-            'popularTalents',
-            'salesByMonth',
-            'contactsByState',
-            'topTalentByState',
-            'mexicoMapData',
-            'recentInitialMessages',
-            'dailyMessages'
-        ));
+        return [
+            'pct' => $pct,
+            'direction' => $current > $previous ? 'up' : ($current < $previous ? 'down' : 'flat'),
+            'hint' => $hint,
+        ];
     }
 }

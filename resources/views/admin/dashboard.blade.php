@@ -4,287 +4,250 @@
 <h1 class="text-2xl font-bold mb-1">Dashboard</h1>
 <p class="opacity-60 mb-6">Bienvenido, {{ auth()->user()->name }}.</p>
 
-{{-- FILA 0: Últimos mensajes en espera de cotización --}}
-<div class="card bg-base-100 border border-base-300 mb-6">
-    <div class="card-body">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="font-semibold">Últimos mensajes en espera de cotización</h3>
-            <a href="{{ route('admin.contact-messages.index', ['status' => 'en_espera_cotizacion']) }}" class="text-xs link link-hover">Ver todos</a>
-        </div>
+{{-- FILA 1: Nuevos mensajes (scroll) + KPIs --}}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
 
-        @forelse ($recentInitialMessages as $message)
-            <a href="{{ route('admin.contact-messages.edit', $message) }}"
-               class="flex items-center justify-between py-2 border-b border-base-300 last:border-0 hover:bg-base-200/50 -mx-2 px-2 rounded transition-colors">
-                <div class="min-w-0">
-                    <p class="text-sm font-medium truncate">{{ $message->name }}</p>
-                    <p class="text-xs opacity-60 truncate">{{ $message->talent_name ?? 'Consulta general' }} · {{ $message->email }}</p>
-                </div>
-                <span class="text-xs opacity-50 shrink-0 ml-3">{{ $message->created_at->diffForHumans() }}</span>
-            </a>
-        @empty
-            <p class="text-sm opacity-60">No hay mensajes en espera de cotización.</p>
-        @endforelse
-    </div>
-</div>
-
-{{-- FILA 1: Gráfica de mensajes por día --}}
-<div class="grid grid-cols-1 gap-4 mb-6">
-    <div class="card bg-base-100 border border-base-300">
+    <div class="card lg:col-span-2">
         <div class="card-body">
-            <h3 class="font-semibold mb-3">Mensajes recibidos por día</h3>
-            <p class="text-xs opacity-60 mb-3">Últimos 30 días</p>
-            <canvas id="dailyMessagesChart" height="90"></canvas>
-        </div>
-    </div>
-</div>
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="font-semibold">Últimos mensajes en espera de cotización</h3>
+                <a href="{{ route('admin.contact-messages.index', ['status' => 'en_espera_cotizacion']) }}" class="text-xs link link-hover">Ver todos</a>
+            </div>
 
-{{-- FILA 2: Artistas más populares y Ventas de los últimos 3 meses --}}
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-
-    {{-- Artistas más populares --}}
-    <div class="card bg-base-100 border border-base-300">
-        <div class="card-body">
-            <h3 class="font-semibold mb-3">Artistas más populares</h3>
-            <p class="text-xs opacity-60 mb-3">Con más solicitudes de contratación recibidas</p>
-
-            <div class="overflow-x-auto">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Talento</th>
-                            <th class="text-right">Solicitudes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($popularTalents as $index => $row)
-                            <tr>
-                                <td class="opacity-60">{{ $index + 1 }}</td>
-                                <td>
-                                    <a href="{{ route('admin.talents.edit', $row->talent) }}" class="link link-hover">
-                                        {{ $row->talent->name }}
-                                    </a>
-                                </td>
-                                <td class="text-right">
-                                    <span class="badge badge-primary badge-sm">{{ $row->total_mensajes }}</span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="3" class="text-center opacity-60 py-4">Aún no hay datos suficientes.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+            <div class="max-h-72 overflow-y-auto -mx-2 px-2">
+                @forelse ($recentInitialMessages as $message)
+                    <a href="{{ route('admin.contact-messages.edit', $message) }}"
+                       class="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0 hover:bg-primary/5 -mx-2 px-2 rounded-lg transition-colors">
+                        <div class="min-w-0">
+                            <p class="text-sm truncate {{ $message->isUnread() ? 'font-semibold' : 'font-medium' }}">
+                                {{ $message->name }}
+                                @if ($message->isUnread())
+                                    <span class="badge badge-primary badge-xs ml-1">Nuevo</span>
+                                @endif
+                            </p>
+                            <p class="text-xs opacity-60 truncate">{{ $message->talent_name ?? 'Consulta general' }} · {{ $message->email }}</p>
+                        </div>
+                        <span class="text-xs opacity-50 shrink-0 ml-3">{{ $message->created_at->diffForHumans() }}</span>
+                    </a>
+                @empty
+                    <p class="text-sm opacity-60">No hay mensajes en espera de cotización.</p>
+                @endforelse
             </div>
         </div>
     </div>
 
-    {{-- Ventas de los últimos 3 meses --}}
-    <div class="card bg-base-100 border border-base-300">
-        <div class="card-body">
-            <h3 class="font-semibold mb-3">Ventas de los últimos 3 meses</h3>
-            <p class="text-xs opacity-60 mb-3">Basado en mensajes marcados como "Contrato pagado"</p>
-            <canvas id="salesChart" height="140"></canvas>
-        </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4">
+        @foreach ([
+            ['Total de mensajes', number_format($totalMessages), 'Desde siempre', null],
+            ['Mensajes este mes', number_format($monthMessages), now()->translatedFormat('F Y'), $monthComparison],
+            ['Promedio por día', $dailyAverage, 'En lo que va del mes', $averageComparison],
+        ] as [$label, $value, $hint, $cmp])
+            <div class="card">
+                <div class="card-body py-4 justify-center">
+                    <p class="text-xs uppercase tracking-widest opacity-60">{{ $label }}</p>
+                    <div class="flex items-baseline gap-2 flex-wrap">
+                        <p class="text-3xl font-bold text-primary leading-tight">{{ $value }}</p>
+                        @if ($cmp)
+                            @php
+                                $color = ['up' => 'text-success', 'down' => 'text-error', 'flat' => 'opacity-60'][$cmp['direction']];
+                                $arrow = ['up' => '▲', 'down' => '▼', 'flat' => '■'][$cmp['direction']];
+                            @endphp
+                            <span class="text-sm font-semibold {{ $color }}">
+                                {{ $arrow }} {{ $cmp['pct'] === null ? ($cmp['direction'] === 'up' ? 'Nuevo' : 'Sin cambio') : abs($cmp['pct']) . '%' }}
+                            </span>
+                        @endif
+                    </div>
+                    <p class="text-xs opacity-50">{{ $cmp ? $cmp['hint'] : $hint }}</p>
+                </div>
+            </div>
+        @endforeach
     </div>
-
 </div>
 
-{{-- FILA 3: Contactos de contratación por estado --}}
-{{-- Mapa SVG real, simplemaps.com — solo desktop --}}
-<div class="card bg-base-100 border border-base-300 mb-6 hidden lg:block">
+{{-- FILA 2: Mensajes por día con filtro --}}
+<div class="card mb-4" x-data="{ range: 30 }" x-init="$watch('range', v => window.setDailyRange(v))">
+    <div class="card-body">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <div>
+                <h3 class="font-semibold">Mensajes recibidos por día</h3>
+                <p class="text-xs opacity-60">Últimos <span x-text="range"></span> días <span class="opacity-70">· <span class="inline-block w-4 border-t-2 border-dashed border-white/50 align-middle"></span> periodo anterior</span></p>
+                <p class="text-xs mt-1"><span id="daily-summary" class="text-primary font-semibold"></span></p>
+            </div>
+            <div class="join">
+                @foreach ([30, 15, 7] as $days)
+                    <button type="button" class="btn btn-xs join-item"
+                            :class="range === {{ $days }} ? 'btn-primary' : ''"
+                            @click="range = {{ $days }}">{{ $days }} días</button>
+                @endforeach
+            </div>
+        </div>
+        <div class="h-64"><canvas id="dailyMessagesChart"></canvas></div>
+    </div>
+</div>
+
+{{-- FILA 3: Artistas populares --}}
+<div class="card mb-4">
+    <div class="card-body">
+        <h3 class="font-semibold">Artistas más populares</h3>
+        <p class="text-xs opacity-60 mb-3">Con más solicitudes de contratación. Da clic en un artista para ver sus estadísticas.</p>
+
+        @if ($talentCards->isEmpty())
+            <p class="text-sm opacity-60 py-4">Aún no hay datos suficientes.</p>
+        @else
+            <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3">
+                @foreach ($talentCards as $index => $talent)
+                    <button type="button" onclick="openArtistModal({{ $index }})"
+                            class="group relative aspect-[3/4] rounded-xl overflow-hidden text-left border border-white/10 hover:border-primary/60 transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-10px_rgba(220,165,74,.5)]">
+                        <img src="{{ $talent['photo'] }}" alt="{{ $talent['name'] }}" loading="lazy"
+                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+                        <span class="absolute top-2 left-2 badge badge-primary badge-sm font-semibold">#{{ $index + 1 }}</span>
+                        <div class="absolute bottom-0 inset-x-0 p-2.5">
+                            <p class="text-sm font-semibold leading-tight line-clamp-2">{{ $talent['name'] }}</p>
+                            <p class="text-xs text-primary">{{ $talent['total'] }} solicitudes</p>
+                        </div>
+                    </button>
+                @endforeach
+            </div>
+        @endif
+    </div>
+</div>
+
+{{-- FILA 4: Mapa (desktop) --}}
+<div class="card mb-4 hidden lg:block">
     <div class="card-body">
         <h3 class="font-semibold mb-1">Contactos de contratación por estado</h3>
-        <p class="text-xs opacity-60 mb-3">El color indica el número de contactos recibidos. Pasa el mouse sobre un estado para ver el detalle y el artista más popular.</p>
+        <p class="text-xs opacity-60 mb-3">El color indica el número de contactos. Pasa el mouse para ver un resumen y da clic en un estado para ver sus estadísticas.</p>
 
         @include('admin.partials.mexico-map')
     </div>
 </div>
 
-{{-- Lista de contactos por estado — solo móvil --}}
-<div class="card bg-base-100 border border-base-300 mb-6 lg:hidden">
+{{-- Lista por estado (móvil) --}}
+<div class="card mb-4 lg:hidden">
     <div class="card-body">
         <h3 class="font-semibold mb-1">Contactos de contratación por estado</h3>
-        <p class="text-xs opacity-60 mb-3">Talento más popular por estado.</p>
+        <p class="text-xs opacity-60 mb-3">Toca un estado para ver sus estadísticas.</p>
 
-        <div class="divide-y divide-base-300">
-            @php
-                $sortedStates = collect($mexicoMapData)->sortByDesc('count');
-            @endphp
-
-            @forelse ($sortedStates as $state)
-                <div class="flex items-center justify-between py-2">
+        <div class="divide-y divide-white/5">
+            @foreach (collect($mexicoMapData)->sortByDesc('count') as $svgId => $state)
+                <button type="button" onclick="openStateModal('{{ $svgId }}')" class="w-full flex items-center justify-between py-2 text-left">
                     <div class="min-w-0">
                         <p class="text-sm font-medium truncate">{{ $state['name'] }}</p>
                         <p class="text-xs opacity-60 truncate">{{ $state['topTalent'] }}</p>
                     </div>
-                    <span class="badge {{ $state['count'] > 0 ? 'badge-primary' : 'badge-ghost' }} badge-sm shrink-0 ml-3">
-                        {{ $state['count'] }}
-                    </span>
-                </div>
-            @empty
-                <p class="text-sm opacity-60 py-2">Sin datos aún.</p>
-            @endforelse
+                    <span class="badge {{ $state['count'] > 0 ? 'badge-primary' : 'badge-ghost' }} badge-sm shrink-0 ml-3">{{ $state['count'] }}</span>
+                </button>
+            @endforeach
         </div>
     </div>
 </div>
 
-{{-- FILA 4: Tarjetas de métricas principales --}}
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-
-    <div class="card bg-base-100 border border-base-300">
-        <div class="card-body p-4">
-            <p class="text-xs opacity-60">Talentos totales</p>
-            <p class="text-3xl font-bold">{{ $totalTalents }}</p>
-            <p class="text-xs opacity-60 mt-1">
-                <span class="text-success">{{ $activeTalents }} activos</span>
-                ·
-                <span class="text-error">{{ $inactiveTalents }} inactivos</span>
-            </p>
-        </div>
-    </div>
-
-    <div class="card bg-base-100 border border-base-300">
-        <div class="card-body p-4">
-            <p class="text-xs opacity-60">Categorías</p>
-            <p class="text-3xl font-bold">{{ $totalCategories }}</p>
-            <p class="text-xs opacity-60 mt-1">{{ $activeCategories }} activas</p>
-        </div>
-    </div>
-
-    <div class="card bg-base-100 border border-base-300">
-        <div class="card-body p-4">
-            <p class="text-xs opacity-60">Sin biografía</p>
-            <p class="text-3xl font-bold {{ $talentsWithoutContent > 0 ? 'text-warning' : '' }}">{{ $talentsWithoutContent }}</p>
-            <a href="{{ route('admin.talents.index') }}" class="text-xs link link-hover mt-1 inline-block">Ver talentos</a>
-        </div>
-    </div>
-
-    <div class="card bg-base-100 border border-base-300">
-        <div class="card-body p-4">
-            <p class="text-xs opacity-60">Sin galería de imágenes</p>
-            <p class="text-3xl font-bold {{ $talentsWithoutImages > 0 ? 'text-warning' : '' }}">{{ $talentsWithoutImages }}</p>
-            <a href="{{ route('admin.talents.index') }}" class="text-xs link link-hover mt-1 inline-block">Ver talentos</a>
-        </div>
-    </div>
-
-</div>
-
-{{-- FILA 5: Categorías con más talentos y Talentos agregados recientemente --}}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-    {{-- Categorías con más talentos --}}
-    <div class="card bg-base-100 border border-base-300 lg:col-span-1">
-        <div class="card-body">
-            <h3 class="font-semibold mb-3">Categorías con más talentos</h3>
-
-            @forelse ($categoriesWithCounts as $category)
-                <div class="flex items-center justify-between py-1.5 border-b border-base-300 last:border-0">
-                    <a href="{{ route('admin.talents.index', ['category' => $category->slug]) }}" class="link link-hover text-sm">
-                        {{ $category->name }}
-                    </a>
-                    <span class="badge badge-sm">{{ $category->talents_count }}</span>
-                </div>
-            @empty
-                <p class="text-sm opacity-60">Aún no hay categorías.</p>
-            @endforelse
-        </div>
-    </div>
-
-    {{-- Talentos recientes --}}
-    <div class="card bg-base-100 border border-base-300 lg:col-span-2">
-        <div class="card-body">
-            <h3 class="font-semibold mb-3">Talentos agregados recientemente</h3>
-
-            <div class="overflow-x-auto">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Categorías</th>
-                            <th>Estado</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($recentTalents as $talent)
-                            <tr>
-                                <td>{{ $talent->name }}</td>
-                                <td>
-                                    @foreach ($talent->categories->take(2) as $category)
-                                        <span class="badge badge-xs badge-outline">{{ $category->name }}</span>
-                                    @endforeach
-                                </td>
-                                <td>
-                                    @if ($talent->is_active)
-                                        <span class="badge badge-success badge-sm">Activo</span>
-                                    @else
-                                        <span class="badge badge-ghost badge-sm">Inactivo</span>
-                                    @endif
-                                </td>
-                                <td class="text-right">
-                                    <a href="{{ route('admin.talents.edit', $talent) }}" class="btn btn-xs">Editar</a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="text-center py-4 opacity-60">Aún no hay talentos.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-</div>
+@include('admin.partials.stats-modal')
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script>
-    new Chart(document.getElementById('dailyMessagesChart'), {
+    const dailyData = {!! json_encode($dailyMessages->values()) !!};
+    const talentCards = {!! json_encode($talentCards->values()) !!};
+    const stateData = {!! json_encode($mexicoMapData) !!};
+
+    /* ---------- Gráfica diaria con filtro 30 / 15 / 7 y periodo anterior ---------- */
+    // dailyData trae 60 días: el periodo actual son los últimos N y el anterior los N previos.
+    function dailyPeriods(days) {
+        const current = dailyData.slice(-days);
+        const previous = dailyData.slice(-days * 2, -days);
+        return { current, previous };
+    }
+
+    const dailyCtx = document.getElementById('dailyMessagesChart').getContext('2d');
+    const grad = dailyCtx.createLinearGradient(0, 0, 0, 260);
+    grad.addColorStop(0, 'rgba(220,165,74,.45)');
+    grad.addColorStop(1, 'rgba(220,165,74,0)');
+
+    let { current: curInit, previous: prevInit } = dailyPeriods(30);
+
+    const dailyChart = new Chart(dailyCtx, {
         type: 'line',
         data: {
-            labels: {!! json_encode($dailyMessages->pluck('label')) !!},
-            datasets: [{
-                label: 'Mensajes',
-                data: {!! json_encode($dailyMessages->pluck('total')) !!},
-                borderColor: '#DCA54A',
-                backgroundColor: 'rgba(220, 165, 74, 0.15)',
-                fill: true,
-                tension: 0.3,
-                pointRadius: 2,
-            }]
+            labels: curInit.map(d => d.label),
+            datasets: [
+                {
+                    label: 'Periodo actual',
+                    data: curInit.map(d => d.total),
+                    borderColor: '#e8c170',
+                    backgroundColor: grad,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#e8c170',
+                    pointBorderColor: '#15130f',
+                    pointBorderWidth: 2,
+                    order: 1,
+                },
+                {
+                    label: 'Periodo anterior',
+                    data: prevInit.map(d => d.total),
+                    borderColor: 'rgba(243,237,226,.55)',
+                    borderDash: [6, 5],
+                    borderWidth: 1.5,
+                    fill: false,
+                    tension: 0.35,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    order: 2,
+                },
+            ]
         },
         options: {
             responsive: true,
-            plugins: { legend: { display: false } },
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title: items => items.length ? 'Día ' + (items[0].dataIndex + 1) + ' del periodo' : '',
+                        label: item => {
+                            const src = item.datasetIndex === 0 ? window.__periods.current : window.__periods.previous;
+                            const d = src[item.dataIndex];
+                            return ` ${item.dataset.label}: ${item.parsed.y} (${d ? d.date : ''})`;
+                        }
+                    }
+                }
+            },
             scales: {
-                y: { beginAtZero: true, ticks: { color: '#a3a3a3', precision: 0 }, grid: { color: '#333333' } },
+                y: { beginAtZero: true, ticks: { color: '#a3a3a3', precision: 0 }, grid: { color: 'rgba(220,165,74,.08)' } },
                 x: { ticks: { color: '#a3a3a3', maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }, grid: { display: false } }
             }
         }
     });
 
-    new Chart(document.getElementById('salesChart'), {
-        type: 'bar',
-        data: {
-            labels: {!! json_encode($salesByMonth->pluck('label')) !!},
-            datasets: [{
-                label: 'Ventas (MXN)',
-                data: {!! json_encode($salesByMonth->pluck('total')) !!},
-                backgroundColor: '#DCA54A',
-                borderRadius: 4,
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { ticks: { color: '#a3a3a3' }, grid: { color: '#333333' } },
-                x: { ticks: { color: '#a3a3a3' }, grid: { display: false } }
-            }
-        }
-    });
+    window.setDailyRange = function (days) {
+        const p = dailyPeriods(days);
+        window.__periods = p;
+        dailyChart.data.labels = p.current.map(d => d.label);
+        dailyChart.data.datasets[0].data = p.current.map(d => d.total);
+        dailyChart.data.datasets[1].data = p.previous.map(d => d.total);
+        dailyChart.update();
+
+        const sum = a => a.reduce((t, d) => t + d.total, 0);
+        const cur = sum(p.current), prev = sum(p.previous);
+        const pct = prev > 0 ? Math.round((cur - prev) / prev * 100) : null;
+        const arrow = cur > prev ? '▲' : (cur < prev ? '▼' : '■');
+        document.getElementById('daily-summary').textContent =
+            `${cur} mensajes ${pct === null ? '' : `${arrow} ${Math.abs(pct)}% `}vs ${prev} del periodo anterior`;
+    };
+    window.setDailyRange(30);
+    /* ---------- Modales de estadísticas (renderStats viene del parcial) ---------- */
+    window.openArtistModal = function (index) {
+        const t = talentCards[index];
+        renderStats({ title: t.name, subtitle: 'Artista', photo: t.photo, link: t.edit_url, insightsUrl: t.insights_url }, t.stats, 'Estados que más lo solicitan');
+    };
+
+    window.openStateModal = function (svgId) {
+        const s = stateData[svgId];
+        if (!s) return;
+        renderStats({ title: s.name, subtitle: 'Estado de la República' }, s.stats, 'Artistas más solicitados');
+    };
 </script>
 @endsection

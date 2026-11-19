@@ -52,3 +52,266 @@
 @theme {
     --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* ==========================================================================
+   ADMIN — tema "Gold Glass" (.admin-shell y .public-shell)
+   ========================================================================== */
+:is(.admin-shell, .public-shell) {
+    --gold: #DCA54A;
+    --gold-soft: #e8c170;
+    --gold-deep: #a9812f;
+    --glass-border: rgba(220, 165, 74, 0.16);
+    --glass-bg: linear-gradient(145deg, rgba(38, 34, 28, 0.78) 0%, rgba(20, 19, 17, 0.82) 100%);
+
+    --color-base-100: #15130f;
+    --color-base-200: #1d1a15;
+    --color-base-300: rgba(220, 165, 74, 0.16);
+    --color-base-content: #f3ede2;
+
+    position: relative;
+    min-height: 100vh;
+    color: var(--color-base-content);
+    background:
+        radial-gradient(900px 500px at 85% -10%, rgba(220, 165, 74, 0.16), transparent 60%),
+        radial-gradient(700px 500px at -5% 105%, rgba(169, 129, 47, 0.14), transparent 60%),
+        linear-gradient(160deg, #0d0c0a 0%, #090908 55%, #12100c 100%);
+    background-attachment: fixed;
+}
+
+/* Tarjetas de cristal */
+:is(.admin-shell, .public-shell) .card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.1rem;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 236, 200, 0.07),
+        0 10px 30px -12px rgba(0, 0, 0, 0.7);
+    transition: border-color .2s, box-shadow .2s, transform .2s;
+}
+:is(.admin-shell, .public-shell) .card:hover {
+    border-color: rgba(220, 165, 74, 0.3);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 236, 200, 0.09),
+        0 14px 36px -12px rgba(0, 0, 0, 0.8),
+        0 0 28px -12px rgba(220, 165, 74, 0.35);
+}
+:is(.admin-shell, .public-shell) .card h3 {
+    letter-spacing: .02em;
+}
+
+/* Títulos de página */
+.admin-shell main h1 {
+    font-weight: 700;
+    letter-spacing: -.01em;
+    background: linear-gradient(90deg, #fff4dc 0%, var(--gold-soft) 60%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Sidebar */
+.admin-shell .admin-sidebar {
+    background: linear-gradient(180deg, rgba(30, 27, 22, 0.92) 0%, rgba(14, 13, 11, 0.95) 100%);
+    border-right: 1px solid var(--glass-border);
+    backdrop-filter: blur(16px);
+    box-shadow: 10px 0 40px -20px rgba(0, 0, 0, 0.8);
+}
+.admin-shell .admin-sidebar .menu li > a {
+    border-radius: .8rem;
+    padding-block: .6rem;
+    color: rgba(243, 237, 226, 0.68);
+    transition: background .2s, color .2s, box-shadow .2s;
+}
+.admin-shell .admin-sidebar .menu li > a:hover {
+    background: rgba(220, 165, 74, 0.08);
+    color: var(--gold-soft);
+}
+.admin-shell .admin-sidebar .menu li > a.menu-active {
+    color: #1a1407;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--gold-soft), var(--gold) 55%, var(--gold-deep));
+    box-shadow: 0 6px 20px -6px rgba(220, 165, 74, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* Barra superior móvil */
+.admin-shell .navbar {
+    background: rgba(14, 13, 11, 0.85);
+    border-bottom: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+}
+
+/* Tablas */
+:is(.admin-shell, .public-shell) .table thead tr {
+    border-bottom: 1px solid rgba(220, 165, 74, 0.28);
+}
+:is(.admin-shell, .public-shell) .table thead th {
+    color: var(--gold-soft);
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    font-weight: 600;
+    background: rgba(220, 165, 74, 0.05);
+}
+:is(.admin-shell, .public-shell) .table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background .15s;
+}
+:is(.admin-shell, .public-shell) .table tbody tr:hover {
+    background: rgba(220, 165, 74, 0.06);
+}
+:is(.admin-shell, .public-shell) .table-zebra tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Botones */
+:is(.admin-shell, .public-shell) .btn-primary:not(.btn-outline) {
+    border: 0;
+    color: #1a1407;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--gold-soft), var(--gold) 55%, var(--gold-deep));
+    box-shadow: 0 6px 18px -8px rgba(220, 165, 74, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+:is(.admin-shell, .public-shell) .btn-primary:not(.btn-outline):hover {
+    filter: brightness(1.08);
+    box-shadow: 0 8px 24px -8px rgba(220, 165, 74, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+:is(.admin-shell, .public-shell) .btn:not(.btn-primary):not(.btn-ghost):not(.btn-error):not(.btn-success):not(.btn-warning):not(.btn-info) {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    color: var(--color-base-content);
+}
+:is(.admin-shell, .public-shell) .btn:not(.btn-primary):not(.btn-ghost):hover {
+    border-color: rgba(220, 165, 74, 0.45);
+}
+:is(.admin-shell, .public-shell) .btn-ghost:hover {
+    background: rgba(220, 165, 74, 0.1);
+    color: var(--gold-soft);
+}
+
+/* Formularios */
+:is(.admin-shell, .public-shell) .input,
+:is(.admin-shell, .public-shell) .select,
+:is(.admin-shell, .public-shell) .textarea,
+:is(.admin-shell, .public-shell) input[type="text"],
+:is(.admin-shell, .public-shell) input[type="email"],
+:is(.admin-shell, .public-shell) input[type="password"],
+:is(.admin-shell, .public-shell) input[type="number"],
+:is(.admin-shell, .public-shell) input[type="search"],
+:is(.admin-shell, .public-shell) input[type="date"],
+:is(.admin-shell, .public-shell) input[type="url"],
+:is(.admin-shell, .public-shell) select,
+:is(.admin-shell, .public-shell) textarea {
+    background-color: rgba(0, 0, 0, 0.35);
+    border-color: rgba(220, 165, 74, 0.18);
+    border-radius: .75rem;
+}
+:is(.admin-shell, .public-shell) .input:focus,
+:is(.admin-shell, .public-shell) .select:focus,
+:is(.admin-shell, .public-shell) .textarea:focus,
+:is(.admin-shell, .public-shell) .input:focus-within {
+    border-color: var(--gold);
+    outline: 2px solid rgba(220, 165, 74, 0.25);
+    outline-offset: 1px;
+    box-shadow: 0 0 18px -6px rgba(220, 165, 74, 0.5);
+}
+
+/* Badges, alertas, modales, tabs */
+:is(.admin-shell, .public-shell) .badge-primary {
+    background: rgba(220, 165, 74, 0.18);
+    color: var(--gold-soft);
+    border: 1px solid rgba(220, 165, 74, 0.35);
+}
+:is(.admin-shell, .public-shell) .alert {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: .9rem;
+}
+:is(.admin-shell, .public-shell) .modal-box,
+:is(.admin-shell, .public-shell) .dropdown-content,
+:is(.admin-shell, .public-shell) .menu.dropdown-content {
+    background: linear-gradient(145deg, #231f18, #141210);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.9), 0 0 40px -20px rgba(220, 165, 74, 0.4);
+}
+:is(.admin-shell, .public-shell) .divider::before,
+:is(.admin-shell, .public-shell) .divider::after {
+    background: var(--glass-border);
+}
+:is(.admin-shell, .public-shell) .link:not(.btn):hover {
+    color: var(--gold-soft);
+}
+
+/* Scrollbar discreto */
+:is(.admin-shell, .public-shell) ::-webkit-scrollbar { width: 10px; height: 10px; }
+:is(.admin-shell, .public-shell) ::-webkit-scrollbar-thumb {
+    background: rgba(220, 165, 74, 0.25);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+:is(.admin-shell, .public-shell) ::-webkit-scrollbar-thumb:hover { background: rgba(220, 165, 74, 0.45); background-clip: content-box; }
+:is(.admin-shell, .public-shell) ::-webkit-scrollbar-track { background: transparent; }
+
+/* ==========================================================================
+   PÚBLICO — extras de "Gold Glass" (header, footer, menú móvil)
+   ========================================================================== */
+.public-shell #site-header.backdrop-blur {
+    background: rgba(13, 12, 10, 0.82);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.8), 0 1px 0 rgba(220, 165, 74, 0.12);
+}
+.public-shell .btn-primary.btn-outline {
+    border-color: var(--gold);
+    color: var(--gold-soft);
+}
+.public-shell .btn-primary.btn-outline:hover {
+    background: linear-gradient(135deg, var(--gold-soft), var(--gold) 55%, var(--gold-deep));
+    color: #1a1407;
+    box-shadow: 0 8px 24px -8px rgba(220, 165, 74, 0.8);
+}
+.public-shell footer {
+    position: relative;
+    background: linear-gradient(180deg, rgba(24, 21, 16, 0.9) 0%, #0a0908 100%);
+    border-top: 0;
+}
+.public-shell footer::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
+    opacity: .6;
+}
+.public-shell footer a:hover {
+    color: var(--gold-soft);
+}
+.public-shell .drawer-side > .menu {
+    background: linear-gradient(180deg, #1d1a15 0%, #0d0c0a 100%);
+    border-right: 1px solid var(--glass-border);
+}
+.public-shell .menu li > a:hover,
+.public-shell .menu li > summary:hover {
+    background: rgba(220, 165, 74, 0.1);
+    color: var(--gold-soft);
+}
+
+/* Separadores del menú del admin */
+.admin-shell .admin-menu-title {
+    margin-top: .9rem;
+    padding: .25rem .75rem;
+    font-size: .65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: var(--gold);
+    opacity: .75;
+}
+.admin-shell .admin-menu-sep {
+    height: 1px;
+    margin: .6rem .5rem;
+    padding: 0;
+    background: linear-gradient(90deg, transparent, var(--glass-border) 20%, var(--glass-border) 80%, transparent);
+    pointer-events: none;
+}

@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="drawer lg:drawer-open" x-data="{ collapsed: localStorage.getItem('admin-sidebar-collapsed') === 'true' }" x-init="$watch('collapsed', v => localStorage.setItem('admin-sidebar-collapsed', v))">
+<div class="admin-shell drawer lg:drawer-open" x-data="{ collapsed: localStorage.getItem('admin-sidebar-collapsed') === 'true' }" x-init="$watch('collapsed', v => localStorage.setItem('admin-sidebar-collapsed', v))">
     <input id="admin-drawer" type="checkbox" class="drawer-toggle" />
 
     <div class="drawer-content flex flex-col">
-        <div class="navbar bg-base-100 border-b border-base-300 lg:hidden">
+        <div class="navbar lg:hidden">
             <label for="admin-drawer" class="btn btn-square btn-ghost">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="4" y1="6" x2="20" y2="6"></line>
@@ -25,7 +25,7 @@
         <label for="admin-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
 
         <aside
-            class="bg-base-100 min-h-full flex flex-col border-r border-base-300 transition-all duration-200 w-64"
+            class="admin-sidebar min-h-full flex flex-col transition-all duration-200 w-64"
             :class="collapsed ? 'lg:w-20' : 'lg:w-64'"
         >
             {{-- Header / Logo --}}
@@ -41,118 +41,49 @@
             </div>
 
             {{-- Navegación --}}
-            <ul class="menu flex-1 p-3 gap-1">
-                <li>
-                    <a href="{{ url('/admin') }}" class="{{ request()->is('admin') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Dashboard' : null">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="7" height="9"></rect>
-                            <rect x="14" y="3" width="7" height="5"></rect>
-                            <rect x="14" y="12" width="7" height="9"></rect>
-                            <rect x="3" y="16" width="7" height="5"></rect>
-                        </svg>
-                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.home-slides.index') }}" class="{{ request()->routeIs('admin.home-slides.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Slides del Home' : null">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                            <path d="m21 15-5-5L5 21"></path>
-                        </svg>
-                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Slides del Home</span>
-                    </a>
-                </li>
+            @php
+                $menu = [
+                    [null, [
+                        ['Dashboard', 'admin', 'is', '<rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect>', url('/admin'), null],
+                        ['Historial de búsquedas', 'admin.search-history.*', 'routeIs', '<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>', route('admin.search-history.index'), null],
+                    ]],
+                    ['Mensajes de contacto', [
+                        ['Contactos de Talentos', 'admin.contact-messages.*', 'routeIs', '<rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>', route('admin.contact-messages.index'), $unreadContactMessages],
+                        ['Contactos de eventos', 'admin.event-contacts.*', 'routeIs', '<rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>', route('admin.event-contacts.index'), $unreadEventContacts],
+                    ]],
+                    ['Contenido del sitio', [
+                        ['Slides del Home', 'admin.home-slides.*', 'routeIs', '<rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path>', route('admin.home-slides.index'), null],
+                        ['Categorías de talento', 'admin.categories.*', 'routeIs', '<path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.82 0l4.6-4.6a2 2 0 0 0 0-2.82Z"></path><circle cx="7.5" cy="7.5" r="1.5"></circle>', route('admin.categories.index'), null],
+                        ['Talentos', 'admin.talents.*', 'routeIs', '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>', route('admin.talents.index'), null],
+                        ['Rosters', 'admin.rosters.*', 'routeIs', '<path d="M2 3h20"></path><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"></path><path d="m7 21 5-5 5 5"></path>', route('admin.rosters.index'), null],
+                        ['Eventos Golden Party', 'admin.events.*', 'routeIs', '<rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>', route('admin.events.index'), null],
+                    ]],
+                    ['Sistema', [
+                        ['Usuarios', 'admin.users.*', 'routeIs', '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>', route('admin.users.index'), null],
+                        ['Configuraciones', 'admin.settings.*', 'routeIs', '<circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>', route('admin.settings.index'), null],
+                    ]],
+                ];
+            @endphp
 
-                <li>
-                    <a href="{{ route('admin.categories.index') }}" class="{{ request()->routeIs('admin.categories.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Categorías' : null">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.82 0l4.6-4.6a2 2 0 0 0 0-2.82Z"></path>
-                            <circle cx="7.5" cy="7.5" r="1.5"></circle>
-                        </svg>
-                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Categorías</span>
-                    </a>
-                </li>
+            <ul class="menu flex-1 p-3 gap-1 flex-nowrap overflow-y-auto">
+                @foreach ($menu as [$sectionTitle, $items])
+                    @if ($sectionTitle)
+                        <li class="menu-title admin-menu-title" x-show="!collapsed" x-transition.opacity>{{ $sectionTitle }}</li>
+                        <li class="admin-menu-sep" x-show="collapsed" aria-hidden="true"></li>
+                    @endif
 
-                <li>
-                    <a href="{{ route('admin.talents.index') }}" class="{{ request()->routeIs('admin.talents.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Talentos' : null">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Talentos</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.rosters.index') }}" class="{{ request()->routeIs('admin.rosters.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Rosters' : null">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M2 3h20"></path>
-                            <path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"></path>
-                            <path d="m7 21 5-5 5 5"></path>
-                        </svg>
-                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Rosters</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.contact-messages.index') }}" class="{{ request()->routeIs('admin.contact-messages.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Contactos' : null">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                        </svg>
-                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Contactos</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.events.index') }}" class="{{ request()->routeIs('admin.events.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Eventos' : null">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                        </svg>
-                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Eventos</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.event-contacts.index') }}" class="{{ request()->routeIs('admin.event-contacts.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Contactos de eventos' : null">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                        </svg>
-                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Contactos de eventos</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.search-history.index') }}" class="{{ request()->routeIs('admin.search-history.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Historial de búsquedas' : null">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Historial de búsquedas</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Usuarios' : null">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
-                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Usuarios</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? 'Configuraciones' : null">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
-                        <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">Configuraciones</span>
-                    </a>
-                </li>
-
-                
+                    @foreach ($items as [$label, $pattern, $matcher, $icon, $href, $unread])
+                        <li>
+                            <a href="{{ $href }}" class="{{ request()->{$matcher}($pattern) ? 'menu-active' : '' }}" :class="collapsed && 'tooltip tooltip-right'" :data-tip="collapsed ? @js($label) : null">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $icon !!}</svg>
+                                <span x-show="!collapsed" x-transition.opacity class="whitespace-nowrap">{{ $label }}</span>
+                                @if ($unread > 0)
+                                    <span class="badge badge-primary badge-sm ml-auto font-semibold" :class="collapsed && 'absolute top-1 right-1 !ml-0 badge-xs'" title="{{ $unread }} sin leer">{{ $unread > 99 ? '99+' : $unread }}</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endforeach
+                @endforeach
             </ul>
 
             {{-- Footer: volver al sitio + colapsar + usuario --}}

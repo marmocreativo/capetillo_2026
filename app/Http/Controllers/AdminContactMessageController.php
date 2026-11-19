@@ -84,6 +84,7 @@ class AdminContactMessageController extends Controller
 
     public function edit(ContactMessage $contactMessage)
     {
+        $contactMessage->markAsRead(auth()->id());
         $contactMessage->load('cotizacionTalents.talent');
         $talents = Talent::with('categories')->orderBy('name')->get();
         $categories = Category::orderBy('name')->get();
